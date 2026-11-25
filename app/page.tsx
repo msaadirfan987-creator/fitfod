@@ -201,6 +201,7 @@ export default function Home() {
                 </span>
 
                 <input
+                  suppressHydrationWarning
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   type="search"
@@ -211,6 +212,7 @@ export default function Home() {
               </div>
 
               <button
+                suppressHydrationWarning
                 type="submit"
                 className="premium-search-button flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-extrabold text-[#173D32]"
               >
