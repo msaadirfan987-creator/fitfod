@@ -1,1048 +1,713 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 
 const categories = [
+  { name: "Weight Loss", desc: "Fat loss, metabolic health and obesity", image: "photo-1571019613454-1cb2f99b2d8b" },
+  { name: "Nutrition & Diet", desc: "Keto, Mediterranean, vegan and paleo", image: "photo-1490645935967-10de6ba17061" },
+  { name: "Strength Training", desc: "Weightlifting, bodybuilding and powerlifting", image: "photo-1583454110551-21f2fa2afe61" },
+  { name: "Cardiovascular Fitness", desc: "Heart health and aerobic conditioning", image: "photo-1538805060514-97d9cc17730c" },
+  { name: "Running", desc: "Marathons, jogging and trail running", image: "photo-1552674605-db6ffd4facb5" },
+  { name: "Walking & Hiking", desc: "Daily walking, trekking and rucking", image: "photo-1551632811-561732d1e306" },
+  { name: "Yoga", desc: "Hatha, Vinyasa and restorative yoga", image: "photo-1544367567-0f2fcb009e0b" },
+  { name: "Pilates", desc: "Mat, reformer and core strengthening", image: "photo-1518611012118-696072aa579a" },
+  { name: "Mobility & Flexibility", desc: "Stretching and joint mobility", image: "photo-1517836357463-d25dfeac3438" },
+  { name: "Longevity & Healthy Aging", desc: "Fitness over 50, 60 and 70", image: "photo-1517841905240-472988babdf9" },
+  { name: "Women's Fitness", desc: "Pregnancy, postpartum and menopause", image: "photo-1518611012118-696072aa579a" },
+  { name: "Men's Fitness", desc: "Muscle development and age-related fitness", image: "photo-1534438327276-14e5300c3a48" },
+  { name: "Sports Performance", desc: "Athletic training, speed and agility", image: "photo-1461896836934-ffe607ba8211" },
+  { name: "Functional Fitness", desc: "Everyday strength and balance", image: "photo-1517963879433-6ad2b056d712" },
+  { name: "HIIT & Conditioning", desc: "Interval training and circuit workouts", image: "photo-1517838277536-f4e3b9c7c8b4" },
+  { name: "Recovery & Injury Prevention", desc: "Rehabilitation and physical therapy", image: "photo-1571019614242-c5c5dee9f50b" },
+  { name: "Sleep & Recovery", desc: "Sleep optimization and rest", image: "photo-1541781774459-bb2af2f05b55" },
+  { name: "Mind-Body Wellness", desc: "Meditation and stress reduction", image: "photo-1506126613408-eca07ce68773" },
+  { name: "Outdoor Fitness", desc: "Cycling, swimming and adventure", image: "photo-1471506480208-91b3a4cc78be" },
+  { name: "Fitness Technology", desc: "Wearables, tracking and AI coaching", image: "photo-1510017803434-a899398421b3" },
+  { name: "Specialized Fitness", desc: "Disability-adapted and inclusive fitness", image: "photo-1534438327276-14e5300c3a48" },
+];
+
+const experts = [
   {
-    name: "Weight Loss",
-    description: "Fat loss, metabolic health and obesity expertise.",
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=85",
-    alt: "Fitness professional coaching a client",
+    id: 1,
+    name: "Expert Profile 01",
+    role: "Nutrition & Wellness Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a professional specializing in nutrition, metabolic health and wellness.",
+    categories: ["Nutrition & Diet", "Weight Loss", "Women's Fitness"],
+    image: "photo-1534528741775-53994a69daeb",
+    initials: "01",
+    featured: true,
   },
   {
-    name: "Nutrition & Diet",
-    description: "Keto, Mediterranean, vegan and paleo nutrition.",
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=85",
-    alt: "Healthy food and nutrition planning",
+    id: 2,
+    name: "Expert Profile 02",
+    role: "Strength & Conditioning Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a professional working in strength, conditioning and athletic performance.",
+    categories: ["Strength Training", "Sports Performance", "Functional Fitness"],
+    image: "photo-1583454110551-21f2fa2afe61",
+    initials: "02",
+    featured: true,
   },
   {
-    name: "Strength Training",
-    description: "Weightlifting, bodybuilding and powerlifting.",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85",
-    alt: "Strength training environment",
+    id: 3,
+    name: "Expert Profile 03",
+    role: "Yoga & Mind-Body Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a specialist in movement, flexibility and mind-body wellness.",
+    categories: ["Yoga", "Mobility & Flexibility", "Mind-Body Wellness"],
+    image: "photo-1580489944761-15a19d654956",
+    initials: "03",
+    featured: true,
   },
   {
-    name: "Cardiovascular Fitness",
-    description: "Heart health and aerobic conditioning.",
-    image: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=900&q=85",
-    alt: "Cardiovascular and endurance training",
+    id: 4,
+    name: "Expert Profile 04",
+    role: "Running & Endurance Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing an endurance and cardiovascular fitness professional.",
+    categories: ["Running", "Cardiovascular Fitness", "Outdoor Fitness"],
+    image: "photo-1500648767791-00dcc994a43e",
+    initials: "04",
+    featured: false,
   },
   {
-    name: "Running",
-    description: "Marathons, jogging and trail running.",
-    image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=900&q=85",
-    alt: "Runner training outdoors",
+    id: 5,
+    name: "Expert Profile 05",
+    role: "Recovery & Healthy Aging Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a professional focused on recovery and healthy aging.",
+    categories: ["Longevity & Healthy Aging", "Recovery & Injury Prevention", "Sleep & Recovery"],
+    image: "photo-1506794778202-cad84cf45f1d",
+    initials: "05",
+    featured: false,
   },
   {
-    name: "Walking & Hiking",
-    description: "Daily walking, trekking and rucking.",
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=85",
-    alt: "Outdoor hiking and nature trail",
+    id: 6,
+    name: "Expert Profile 06",
+    role: "Fitness Technology Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a professional exploring fitness technology and training.",
+    categories: ["Fitness Technology", "HIIT & Conditioning", "Men's Fitness"],
+    image: "photo-1507003211169-0a1dd7228f2d",
+    initials: "06",
+    featured: false,
   },
   {
-    name: "Yoga",
-    description: "Hatha, Vinyasa and restorative yoga.",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=900&q=85",
-    alt: "Yoga practice in a calm studio",
+    id: 7,
+    name: "Expert Profile 07",
+    role: "Pilates & Mobility Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing a professional in Pilates, movement and mobility.",
+    categories: ["Pilates", "Mobility & Flexibility", "Functional Fitness"],
+    image: "photo-1531123897727-8f129e1688ce",
+    initials: "07",
+    featured: false,
   },
   {
-    name: "Pilates",
-    description: "Mat Pilates, reformer and core strengthening.",
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85",
-    alt: "Pilates and core fitness practice",
+    id: 8,
+    name: "Expert Profile 08",
+    role: "Outdoor Fitness Specialist",
+    location: "Global Network",
+    bio: "A demo profile representing an outdoor fitness and adventure professional.",
+    categories: ["Outdoor Fitness", "Walking & Hiking", "Sports Performance"],
+    image: "photo-1506794778202-cad84cf45f1d",
+    initials: "08",
+    featured: false,
   },
 ];
 
-const benefits = [
-  {
-    number: "01",
-    title: "Discover Experts",
-    description:
-      "Explore a growing directory of fitness professionals, educators, authors, coaches and industry voices.",
-  },
-  {
-    number: "02",
-    title: "Explore Ideas",
-    description:
-      "Find fresh perspectives, specialist knowledge and conversations across the fitness industry.",
-  },
-  {
-    number: "03",
-    title: "Build Influence",
-    description:
-      "Connect with a wider audience and share your expertise through professional podcast production.",
-  },
-];
+const photo = (id: string, width = 800) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 
-function ArrowIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-4 w-4">
-      <path
-        d="M5 12h14M13 5l7 7-7 7"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+const roles = Array.from(new Set(experts.map((expert) => expert.role)));
+const locations = ["Global Network"];
 
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
-      <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" strokeWidth="1.8" />
-      <path
-        d="m16 16 4.5 4.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function MicIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-6 w-6">
-      <rect
-        x="9"
-        y="3"
-        width="6"
-        height="12"
-        rx="3"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      />
-      <path
-        d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export default function Home() {
+export default function ExpertsPage() {
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All Categories");
+  const [role, setRole] = useState("All Roles");
+  const [location, setLocation] = useState("All Locations");
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [page, setPage] = useState(1);
 
-  function handleSearch(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const query = search.trim();
+  const filteredExperts = useMemo(() => {
+    return experts.filter((expert) => {
+      const searchMatch =
+        !search ||
+        expert.name.toLowerCase().includes(search.toLowerCase()) ||
+        expert.role.toLowerCase().includes(search.toLowerCase()) ||
+        expert.bio.toLowerCase().includes(search.toLowerCase()) ||
+        expert.categories.some((item) =>
+          item.toLowerCase().includes(search.toLowerCase())
+        );
 
-    if (query) {
-      window.location.href = `/experts?search=${encodeURIComponent(query)}`;
-    }
-  }
+      const categoryMatch =
+        category === "All Categories" || expert.categories.includes(category);
+      const roleMatch = role === "All Roles" || expert.role === role;
+      const locationMatch =
+        location === "All Locations" || expert.location === location;
+
+      return searchMatch && categoryMatch && roleMatch && locationMatch;
+    });
+  }, [search, category, role, location]);
+
+  const pageSize = 6;
+  const totalPages = Math.max(1, Math.ceil(filteredExperts.length / pageSize));
+  const visibleExperts = filteredExperts.slice(
+    (page - 1) * pageSize,
+    page * pageSize
+  );
+
+  const resetFilters = () => {
+    setSearch("");
+    setCategory("All Categories");
+    setRole("All Roles");
+    setLocation("All Locations");
+    setPage(1);
+  };
+
+  const featuredExperts = experts.filter((expert) => expert.featured);
 
   return (
-    <main className="min-h-screen bg-white text-[#173D32]">
-      {/* NAVIGATION */}
-      <header className="sticky top-0 z-50 border-b border-[#E9EFE9] bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-10">
-          <a href="/" className="flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#073D34] text-[#B8F56A]">
-              <MicIcon />
-            </span>
-            <span className="text-xl font-extrabold tracking-tight text-[#073D34] sm:text-2xl">
-              Fitness<span className="text-[#78A94C]">X</span>pods
-            </span>
-          </a>
+    <main className="min-h-screen overflow-hidden bg-[#F5F6F3] text-[#173D34]">
+      <style jsx global>{`
+        html { scroll-behavior: smooth; }
 
-          <nav className="hidden items-center gap-1 md:flex">
-            <a className="nav-link" href="/">Home</a>
-            <a className="nav-link" href="/experts">Experts</a>
-            <a className="nav-link" href="/categories">Categories</a>
-            <a className="nav-link" href="#about">About</a>
-            <a className="nav-link" href="#contact">Contact</a>
+        .nav-link { position: relative; }
+        .nav-link:after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: -7px;
+          height: 2px;
+          background: #62D957;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform .25s ease;
+        }
+        .nav-link:hover:after { transform: scaleX(1); }
+
+        .lime-glow {
+          transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+        .lime-glow:hover {
+          transform: translateY(-5px);
+          border-color: rgba(98,217,87,.65);
+          box-shadow: 0 15px 38px rgba(98,217,87,.18), 0 0 18px rgba(98,217,87,.12);
+        }
+
+        .glass-stat {
+          background: linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.055));
+          border: 1px solid rgba(196,255,178,.3);
+          backdrop-filter: blur(14px);
+        }
+
+        .premium-card {
+          background: linear-gradient(145deg,#174B38,#063B35);
+          border: 1px solid rgba(98,217,87,.35);
+          box-shadow: 0 12px 34px rgba(6,59,53,.12), inset 0 1px rgba(255,255,255,.1);
+        }
+
+        .section-kicker {
+          color: #4BAE43;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: .19em;
+          text-transform: uppercase;
+        }
+
+        /* Find your specialist — mint and lime green theme */
+        .golden-panel {
+          border: 1px solid #BFE5BD;
+          background: linear-gradient(135deg,#FFFFFF 0%,#F1FAEF 55%,#E4F5E1 100%);
+          box-shadow: 0 14px 38px rgba(48,130,65,.10), 0 0 22px rgba(98,217,87,.08);
+        }
+
+        .golden-input {
+          border: 1px solid #CDE5CA;
+          background: linear-gradient(135deg,#FFFFFF,#F4FBF2);
+          transition: border-color .25s ease, box-shadow .25s ease;
+        }
+        .golden-input:focus {
+          border-color: #70C96A;
+          box-shadow: 0 0 0 3px rgba(98,217,87,.16), 0 0 16px rgba(98,217,87,.12);
+          outline: none;
+        }
+
+        .expert-luxury {
+          border: 1px solid transparent;
+          background:
+            linear-gradient(#fff,#fff) padding-box,
+            linear-gradient(135deg,#D9EFCB,#D7B85F,#A9DF83,#E8D79E) border-box;
+          box-shadow: 0 12px 34px rgba(6,59,53,.07);
+          transition: transform .3s ease, box-shadow .3s ease;
+        }
+        .expert-luxury:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 18px 42px rgba(105,155,62,.15), 0 0 22px rgba(213,185,95,.16);
+        }
+
+        /* Explore all experts — fresh green cards */
+        .directory-luxury {
+          border: 1px solid #D1E7CE;
+          box-shadow: 0 8px 26px rgba(6,59,53,.055);
+          transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+        .directory-luxury:hover {
+          transform: translateY(-4px);
+          border-color: #8BD77D;
+          box-shadow: 0 15px 34px rgba(68,145,69,.13), 0 0 18px rgba(98,217,87,.10);
+        }
+
+        .gold-text {
+          background: linear-gradient(100deg,#B9E65D 0%,#E4CE79 48%,#A7E36A 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+      `}</style>
+
+      {/* Navigation */}
+      <header className="sticky top-0 z-50 border-b border-[#E9EEE8] bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+          <Link href="/" className="text-xl font-black tracking-tight text-[#063B35]">
+            Fitness<span className="text-[#62D957]">X</span>pods
+          </Link>
+          <nav className="hidden items-center gap-9 text-sm font-semibold text-[#23473C] md:flex">
+            <Link className="nav-link" href="/">Home</Link>
+            <Link className="nav-link" href="/#categories">Categories</Link>
+            <Link className="nav-link text-[#4BAE43]" href="/experts">Experts</Link>
+            <Link className="nav-link" href="/podcasts">Podcasts</Link>
+            <Link className="nav-link" href="/#about">About</Link>
+            <Link className="nav-link" href="/#contact">Contact</Link>
           </nav>
-
-          <a
-            href="#partner"
-            className="rounded-full bg-[#B8F56A] px-4 py-2.5 text-sm font-bold text-[#173D32] shadow-sm transition hover:bg-[#A7E65B] hover:shadow-[0_0_20px_rgba(184,245,106,0.45)] sm:px-6"
-          >
-            Partner With Us
-          </a>
+          <Link href="#directory-results" className="rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#174B38]">
+            Find an Expert <span className="ml-1 text-[#62D957]">→</span>
+          </Link>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="hero-section relative isolate overflow-hidden bg-[#073D34]">
-        <div className="hero-photo absolute inset-0 -z-20" />
-        <div className="hero-overlay absolute inset-0 -z-10" />
-        <div className="hero-aura" aria-hidden="true" />
+      {/* Hero */}
+      <section className="px-4 pb-8 pt-7 sm:px-6 lg:px-8 lg:pt-10">
+        <div className="mx-auto max-w-7xl rounded-[30px] bg-white p-2.5 shadow-[0_18px_55px_rgba(6,59,53,0.09)] sm:p-3">
+          <div className="relative isolate overflow-hidden rounded-[23px] bg-[#063B35]">
+            <div className="pointer-events-none absolute -right-20 -top-24 h-96 w-96 rounded-full bg-[#62D957]/10 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 left-1/4 h-60 w-60 rounded-full bg-[#D7B85F]/10 blur-3xl" />
 
-        <div className="mx-auto flex min-h-[590px] max-w-7xl items-center px-5 py-20 sm:px-8 lg:min-h-[660px] lg:px-10">
-          <div className="max-w-3xl">
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#B8F56A]/35 bg-[#B8F56A]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#C9F59A]">
-              <span className="h-2 w-2 rounded-full bg-[#B8F56A] shadow-[0_0_10px_#B8F56A]" />
-              The Global Fitness Expert Network
-            </div>
+            <div className="relative grid items-center gap-8 px-6 py-11 sm:px-10 lg:grid-cols-[1.05fr_.95fr] lg:px-14 lg:py-12">
+              <div className="relative z-10">
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#62D957]/35 bg-white/[0.07] px-4 py-2 text-[10px] font-bold uppercase tracking-[.2em] text-[#B7F5A8]">
+                  <span className="h-2 w-2 rounded-full bg-[#B7E65B]" />
+                  The FitnessXpods Expert Network
+                </div>
 
-            <h1 className="hero-heading max-w-3xl text-4xl font-extrabold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-7xl">
-              Where Fitness Knowledge Meets{" "}
-              <span className="influence-text">Influence.</span>
-            </h1>
+                <h1 className="max-w-2xl text-[34px] font-normal leading-[1.12] tracking-tight text-white sm:text-[43px] lg:text-[54px]">
+                  Discover the <span className="font-bold">voices</span>
+                  <br />
+                  shaping <span className="gold-text font-bold">fitness.</span>
+                </h1>
 
-            <p className="mt-7 max-w-2xl text-base leading-8 text-white/85 sm:text-lg">
-              Discover the voices shaping the future of fitness. Meet the experts.
-              Explore their ideas. Hear their stories. Connect with the people
-              moving the fitness industry forward.
-            </p>
+                <p className="mt-5 max-w-xl text-sm leading-7 text-white/75 sm:text-[15px]">
+                  Discover the <strong className="font-semibold text-white">people</strong>, knowledge and ideas transforming the fitness industry. Explore expert perspectives, uncover fresh insights and connect with the voices shaping what comes next.
+                </p>
 
-            <form
-              onSubmit={handleSearch}
-              className="premium-search mt-9 flex max-w-xl flex-col gap-3 rounded-2xl border border-white/70 bg-white/95 p-2.5 sm:flex-row"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-3 px-3">
-                <span className="search-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[#315D3C]">
-                  <SearchIcon />
-                </span>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Link href="#directory-results" className="rounded-full bg-gradient-to-r from-[#BCEB62] to-[#E3D17D] px-6 py-3.5 text-sm font-extrabold text-[#063B35] shadow-[0_7px_25px_rgba(190,220,91,.2)] transition hover:brightness-105">
+                    Explore Experts <span className="ml-2">→</span>
+                  </Link>
+                  <Link href="#categories" className="rounded-full border border-white/30 px-6 py-3.5 text-sm font-bold text-white transition hover:border-[#D8C16D] hover:bg-white/10">
+                    Browse Categories
+                  </Link>
+                </div>
 
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  type="search"
-                  placeholder="Search experts, topics or specialties..."
-                  aria-label="Search experts, topics or specialties"
-                  className="w-full bg-transparent py-3 text-sm text-[#173D32] outline-none placeholder:text-[#829187]"
+                <div className="mt-9 grid max-w-lg grid-cols-3 gap-2 sm:gap-3">
+                  <div className="glass-stat rounded-2xl p-3 sm:p-4">
+                    <div className="text-2xl font-black text-[#C7E979] sm:text-3xl">21</div>
+                    <div className="mt-1 text-[10px] font-semibold leading-4 text-white/75 sm:text-xs">Specialist fields</div>
+                  </div>
+                  <div className="glass-stat rounded-2xl p-3 sm:p-4">
+                    <div className="text-lg font-black text-[#D9C77A] sm:text-2xl">Global</div>
+                    <div className="mt-1 text-[10px] font-semibold leading-4 text-white/75 sm:text-xs">Expert discovery</div>
+                  </div>
+                  <div className="glass-stat rounded-2xl p-3 sm:p-4">
+                    <div className="text-lg font-black text-[#C7E979] sm:text-2xl">One</div>
+                    <div className="mt-1 text-[10px] font-semibold leading-4 text-white/75 sm:text-xs">Knowledge network</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hero photograph — directly inside the hero, no separate card */}
+              <div className="relative mx-auto w-full max-w-[470px] lg:ml-auto">
+                <img
+                  src="https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg?auto=compress&cs=tinysrgb&w=1100"
+                  alt="Muscular male fitness professional in a gym"
+                  className="h-[350px] w-full rounded-[25px] object-cover object-center sm:h-[435px]"
                 />
-              </div>
-
-              <button
-                type="submit"
-                className="premium-search-button flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-extrabold text-[#173D32]"
-              >
-                Search Experts <ArrowIcon />
-              </button>
-            </form>
-
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-white/75">
-              <span className="flex items-center gap-2">
-                <span className="text-[#B8F56A]">✓</span> Fitness professionals
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="text-[#B8F56A]">✓</span> Industry educators
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="text-[#B8F56A]">✓</span> Authors and thought leaders
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* THREE GLASS FEATURES INSIDE THE HERO */}
-        <div className="hero-features-wrap mx-auto w-full max-w-7xl px-5 pb-12 sm:px-8 lg:px-10">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="intro-item">
-              <span className="intro-icon">🌍</span>
-              <div>
-                <p className="font-extrabold tracking-tight text-white">
-                  A Global Network
-                </p>
-                <p className="mt-1 text-sm leading-6 text-white/70">
-                  Fitness knowledge without borders
-                </p>
-              </div>
-            </div>
-
-            <div className="intro-item">
-              <span className="intro-icon">🎓</span>
-              <div>
-                <p className="font-extrabold tracking-tight text-white">
-                  Expert Knowledge
-                </p>
-                <p className="mt-1 text-sm leading-6 text-white/70">
-                  Discover specialist perspectives
-                </p>
-              </div>
-            </div>
-
-            <div className="intro-item">
-              <span className="intro-icon">🎙️</span>
-              <div>
-                <p className="font-extrabold tracking-tight text-white">
-                  Podcast Production
-                </p>
-                <p className="mt-1 text-sm leading-6 text-white/70">
-                  Turn expertise into conversations
-                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CATEGORIES */}
-      <section id="categories" className="bg-white px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#719C4C]">
-              Explore the industry
-            </p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-[#103D32] sm:text-4xl">
-              Knowledge Across Every Corner of Fitness
-            </h2>
-            <p className="mt-4 leading-7 text-[#60766A]">
-              Explore specialist topics and discover the people sharing knowledge,
-              experience and new ideas across the fitness world.
-            </p>
+      {/* Compact premium filter */}
+      <section className="px-5 pb-14 pt-7 sm:px-8">
+        <div className="golden-panel mx-auto max-w-6xl rounded-3xl p-5 sm:p-7">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="section-kicker">Find your specialist</div>
+              <h2 className="mt-2 text-[25px] font-normal tracking-tight text-[#063B35] sm:text-[30px]">
+                What&apos;s Your <span className="font-bold">Fitness Dream?</span>
+              </h2>
+              <p className="mt-1 text-sm text-[#718078]">Find the right knowledge, experience and expertise.</p>
+            </div>
+            <Link href="#directory-results" className="text-sm font-bold text-[#438D35] hover:text-[#063B35]">
+              View all experts →
+            </Link>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {categories.map((category) => (
-              <a
-                key={category.name}
-                href={`/experts?category=${encodeURIComponent(category.name)}`}
-                className="category-card group overflow-hidden rounded-2xl border border-[#E7EEE5] bg-white"
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <input
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder="Expert name or topic"
+              className="golden-input min-w-0 rounded-xl px-4 py-3 text-sm text-[#23473C] placeholder:text-[#8A978E]"
+            />
+            <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
+              <option>All Categories</option>
+              {categories.map((item) => <option key={item.name}>{item.name}</option>)}
+            </select>
+            <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
+              <option>All Roles</option>
+              {roles.map((item) => <option key={item}>{item}</option>)}
+            </select>
+            <select value={location} onChange={(e) => { setLocation(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
+              <option>All Locations</option>
+              {locations.map((item) => <option key={item}>{item}</option>)}
+            </select>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-[#839087]">Search by specialist, category, professional role or location.</p>
+            <button onClick={resetFilters} className="text-xs font-bold text-[#438D35] hover:text-[#063B35]">Clear filters ↺</button>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section id="categories" className="scroll-mt-24 bg-white px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div>
+              <div className="section-kicker">Explore specialist fields</div>
+              <h2 className="mt-3 text-3xl font-normal tracking-tight text-[#063B35] sm:text-4xl">
+                Explore the world of <span className="font-bold">fitness expertise.</span>
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#718078]">
+                From nutrition and performance to recovery and healthy aging, discover specialist knowledge across 21 areas of fitness.
+              </p>
+            </div>
+            <div className="rounded-full border border-[#D9D49A] bg-gradient-to-r from-[#F3FAE9] to-[#FBF5DF] px-4 py-2 text-xs font-extrabold text-[#718D32]">
+              21 specialist categories
+            </div>
+          </div>
+
+          <div className="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {categories.slice(0, showAllCategories ? 21 : 8).map((item, index) => (
+              <button
+                key={item.name}
+                onClick={() => {
+                  setCategory(item.name);
+                  setPage(1);
+                  document.getElementById("directory-results")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="lime-glow group overflow-hidden rounded-2xl border border-[#E8EEE5] bg-white text-left shadow-[0_5px_18px_rgba(6,59,53,.04)]"
               >
-                <div className="category-image-wrap">
-                  <img
-                    src={category.image}
-                    alt={category.alt}
-                    className="category-image"
-                    loading="lazy"
-                  />
-                  <div className="category-image-shade" />
+                <div className="relative h-32 overflow-hidden sm:h-40">
+                  <img src={photo(item.image, 600)} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#063B35]/75 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-3 rounded-full border border-white/30 bg-[#063B35]/50 px-2.5 py-1 text-[9px] font-bold tracking-widest text-white backdrop-blur-md">
+                    FIELD {String(index + 1).padStart(2, "0")}
+                  </div>
+                </div>
+                <div className="p-3.5 sm:p-4">
+                  <h3 className="text-sm font-extrabold leading-snug text-[#174B38] sm:text-base">{item.name}</h3>
+                  <p className="mt-1.5 text-[11px] leading-5 text-[#78867E] sm:text-xs">{item.desc}</p>
+                  <div className="mt-3 text-[11px] font-bold text-[#429B3A]">Explore specialists <span className="ml-1 transition group-hover:ml-2">→</span></div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-9 text-center">
+            <button onClick={() => setShowAllCategories(!showAllCategories)} className="rounded-full border border-[#C6D98A] bg-gradient-to-r from-white to-[#F8F9E9] px-7 py-3 text-sm font-extrabold text-[#638B35] shadow-[0_5px_18px_rgba(185,216,91,.10)] transition hover:border-[#8BD77D] hover:shadow-[0_0_20px_rgba(98,217,87,.18)]">
+              {showAllCategories ? "Show fewer categories ↑" : "Explore all 21 categories ↓"}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured experts */}
+      <section className="bg-[#F5F6F3] px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <div className="section-kicker">Meet the network</div>
+              <h2 className="mt-3 text-3xl font-normal tracking-tight text-[#063B35] sm:text-4xl">
+                Featured <span className="font-bold">experts</span>
+              </h2>
+              <p className="mt-3 text-sm text-[#718078]">A closer look at professionals across different areas of fitness.</p>
+            </div>
+            <Link href="#directory-results" className="text-sm font-extrabold text-[#8C762D] hover:text-[#063B35]">Browse directory ↓</Link>
+          </div>
+
+          <div className="mt-9 grid gap-6 md:grid-cols-3">
+            {featuredExperts.map((expert) => (
+              <article key={expert.id} className="expert-luxury group overflow-hidden rounded-[25px]">
+                <div className="relative h-64 overflow-hidden bg-[#DDE8DC]">
+                  <img src={photo(expert.image, 850)} alt={expert.name} className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105" loading="lazy" />
+                  <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-[#063B35]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">Featured</div>
+                  <div className="absolute right-4 top-4 rounded-full border border-[#E6D18B]/60 bg-[#063B35]/75 px-3 py-1.5 text-[10px] font-bold text-[#E9D994] backdrop-blur-md">Profile {expert.initials}</div>
+                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#063B35]/65 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-xs font-semibold text-white">FitnessXpods Network</div>
                 </div>
 
                 <div className="p-6">
-                  <h3 className="text-lg font-extrabold text-[#173D32]">
-                    {category.name}
-                  </h3>
-                  <p className="mt-2 min-h-[48px] text-sm leading-6 text-[#78867D]">
-                    {category.description}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#54833F]">
-                    Explore topic <ArrowIcon />
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <a
-              href="/categories"
-              className="inline-flex items-center gap-2 rounded-full border border-[#B8D995] px-6 py-3 text-sm font-bold text-[#315C3D] transition hover:bg-[#F0F8E8]"
-            >
-              Explore All Categories <ArrowIcon />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT */}
-      <section id="about" className="bg-[#F4F7F2] px-5 py-20 sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#719C4C]">
-              About FitnessXpods
-            </p>
-            <h2 className="mt-4 text-3xl font-extrabold leading-tight tracking-tight text-[#103D32] sm:text-4xl">
-              More Than a Directory.
-              <span className="block text-[#6E9E49]">A Platform for Influence.</span>
-            </h2>
-            <p className="mt-6 leading-8 text-[#66766D]">
-              FitnessXpods brings together the people, ideas and conversations
-              shaping the global fitness industry. Our goal is to make it easier
-              to discover knowledgeable professionals and connect their expertise
-              with audiences around the world.
-            </p>
-            <p className="mt-4 leading-8 text-[#66766D]">
-              Alongside our expert directory, we help fitness professionals
-              develop and produce high-quality podcasts — from recording and
-              editing to video content and publishing.
-            </p>
-            <a
-              href="#partner"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#073D34] px-7 py-3.5 text-sm font-bold text-white transition hover:bg-[#105548]"
-            >
-              Discover Our Approach <ArrowIcon />
-            </a>
-          </div>
-
-          <div className="grid gap-4">
-            {benefits.map((benefit) => (
-              <div
-                key={benefit.number}
-                className="flex gap-5 rounded-2xl border border-[#E4EBE0] bg-white p-6 shadow-sm"
-              >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#DDF1C8] text-sm font-extrabold text-[#315D3C]">
-                  {benefit.number}
-                </span>
-                <div>
-                  <h3 className="text-lg font-extrabold text-[#173D32]">
-                    {benefit.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-6 text-[#78867D]">
-                    {benefit.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PODCAST PRODUCTION */}
-      <section className="bg-[#073D34] px-5 py-20 text-white sm:px-8 lg:px-10 lg:py-24">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
-          <div>
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#B8F56A] text-[#173D32]">
-              <MicIcon />
-            </div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#B8F56A]">
-              Our Podcast Services
-            </p>
-            <h2 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">
-              Your Expertise Deserves to Be Heard.
-            </h2>
-            <p className="mt-5 max-w-xl leading-8 text-white/75">
-              We help fitness professionals transform their knowledge into
-              compelling podcast experiences. From production planning and
-              recording guidance to editing, video and publishing, we help bring
-              your voice to a wider audience.
-            </p>
-            <a
-              href="#partner"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#B8F56A] px-7 py-3.5 text-sm font-extrabold text-[#173D32] transition hover:bg-[#A6E75B]"
-            >
-              Explore Podcast Production <ArrowIcon />
-            </a>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-8 sm:p-10">
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#B8F56A]">
-              From expertise to impact
-            </p>
-            <div className="mt-8 space-y-6">
-              {[
-                ["01", "Plan", "Shape your podcast concept and strategy."],
-                ["02", "Produce", "Record, edit and create professional content."],
-                ["03", "Publish", "Prepare and publish your podcast episodes."],
-                ["04", "Grow", "Build visibility and reach your audience."],
-              ].map(([number, title, description]) => (
-                <div key={number} className="flex gap-4">
-                  <span className="text-sm font-extrabold text-[#B8F56A]">
-                    {number}
-                  </span>
-                  <div>
-                    <h3 className="font-extrabold text-white">{title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-white/65">
-                      {description}
-                    </p>
+                  <div className="text-[10px] font-bold uppercase tracking-[.17em] text-[#9A843A]">Specialist · {expert.initials}</div>
+                  <h3 className="mt-2 text-xl font-extrabold text-[#063B35]">{expert.role}</h3>
+                  <p className="mt-3 text-sm leading-6 text-[#718078]">{expert.bio}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {expert.categories.map((item) => (
+                      <span key={item} className="rounded-full border border-[#DDE9C9] bg-gradient-to-r from-[#F3F8E9] to-[#FBF7E9] px-3 py-1.5 text-[10px] font-bold text-[#587B35]">{item}</span>
+                    ))}
+                  </div>
+                  <div className="mt-5 border-t border-[#EDF0EA] pt-4">
+                    <span className="text-[10px] font-semibold text-[#9A6C22]">Illustrative demo profile · Not a verified expert</span>
                   </div>
                 </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Full directory */}
+      <section id="directory-results" className="scroll-mt-24 bg-gradient-to-br from-[#EAF6E8] via-[#F5FAF2] to-[#E5F2E2] px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="section-kicker">Find your specialist</div>
+          <div className="mt-3 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+            <div>
+              <h2 className="text-3xl font-normal tracking-tight text-[#063B35] sm:text-4xl">
+                Explore all <span className="font-bold">experts</span>
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#718078]">Search the directory and discover professionals by expertise, specialism and location.</p>
+            </div>
+            <div className="rounded-full border border-[#BFE1B9] bg-gradient-to-r from-white to-[#E5F5E2] px-4 py-2 text-xs font-bold text-[#438D42]">
+              {filteredExperts.length} demo profiles shown
+            </div>
+          </div>
+
+          <div className="mt-7 flex flex-col gap-3 rounded-2xl border border-[#CDE5C9] bg-gradient-to-r from-white via-[#F2FAF0] to-[#E4F3E1] p-4 shadow-[0_12px_34px_rgba(40,110,55,.08)] sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm font-bold text-[#174B38]">Refine your results</div>
+            <div className="flex flex-wrap gap-2">
+              <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
+                <option>All Categories</option>
+                {categories.map((item) => <option key={item.name}>{item.name}</option>)}
+              </select>
+              <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
+                <option>All Roles</option>
+                {roles.map((item) => <option key={item}>{item}</option>)}
+              </select>
+              <select value={location} onChange={(e) => { setLocation(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
+                <option>All Locations</option>
+                {locations.map((item) => <option key={item}>{item}</option>)}
+              </select>
+              <button onClick={resetFilters} className="rounded-xl border border-[#BFE1B9] bg-white px-4 py-2.5 text-xs font-bold text-[#438D42] hover:bg-[#EFF9ED]">Clear filters</button>
+            </div>
+          </div>
+
+          {visibleExperts.length > 0 ? (
+            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleExperts.map((expert) => (
+                <article key={expert.id} className="directory-luxury group overflow-hidden rounded-2xl bg-white">
+                  <div className="flex gap-4 p-5">
+                    <div className="relative shrink-0 rounded-xl p-[2px] bg-gradient-to-br from-[#BDE7A9] via-[#8BD77D] to-[#D5EED0]">
+                      <img src={photo(expert.image, 300)} alt={expert.name} className="h-24 w-24 rounded-[10px] object-cover" loading="lazy" />
+                    </div>
+                    <div className="min-w-0 pt-1">
+                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-[#548D4A]">FitnessXpods Network</div>
+                      <h3 className="mt-2 text-base font-black text-[#063B35]">{expert.name}</h3>
+                      <p className="mt-1 text-xs font-semibold leading-5 text-[#597166]">{expert.role}</p>
+                      <p className="mt-1 text-[10px] text-[#929D95]">{expert.location}</p>
+                    </div>
+                  </div>
+                  <div className="px-5 pb-5">
+                    <p className="text-xs leading-6 text-[#75837A]">{expert.bio}</p>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {expert.categories.map((item) => (
+                        <span key={item} className="rounded-full border border-[#D5E9D0] bg-gradient-to-r from-[#F0F8EE] to-[#EAF6E7] px-2.5 py-1 text-[9px] font-bold text-[#54834B]">{item}</span>
+                      ))}
+                    </div>
+                    <div className="mt-4 border-t border-[#E5EFE2] pt-3 text-[10px] font-semibold text-[#72966B]">Demo profile · Details coming soon</div>
+                  </div>
+                </article>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="mt-8 rounded-2xl border border-dashed border-[#C8D9C5] bg-[#F8FAF7] px-5 py-12 text-center">
+              <div className="text-lg font-black text-[#174B38]">No matching demo profiles</div>
+              <p className="mt-2 text-sm text-[#78867E]">Try a different search or clear your filters.</p>
+              <button onClick={resetFilters} className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white">Clear filters</button>
+            </div>
+          )}
+
+          {filteredExperts.length > pageSize && (
+            <div className="mt-9 flex items-center justify-center gap-4">
+              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">← Previous</button>
+              <span className="text-xs font-bold text-[#718078]">{page} / {totalPages}</span>
+              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">Next →</button>
+            </div>
+          )}
+          <p className="mt-5 text-center text-[10px] leading-5 text-[#9AA49C]">These are illustrative demo entries for layout and testing. They are not real or verified professional listings.</p>
         </div>
       </section>
 
-      {/* PARTNER CTA */}
-      <section id="partner" className="bg-white px-5 py-20 sm:px-8 lg:px-10">
-        <div className="partner-banner relative mx-auto grid max-w-6xl items-center gap-10 overflow-hidden rounded-[2rem] p-6 sm:p-10 lg:grid-cols-[1.05fr_0.95fr] lg:p-12">
-          <div className="partner-glow" aria-hidden="true" />
-
-          <div className="relative z-10">
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#B8F56A]">
-              Become Part of the Network
-            </p>
-            <h2 className="mt-4 text-3xl font-extrabold leading-tight text-white sm:text-4xl">
-              Are You Shaping the Future of Fitness?
+      {/* Difference */}
+      <section className="bg-[#F5F6F3] px-5 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <div className="section-kicker">The FitnessXpods difference</div>
+            <h2 className="mt-3 text-3xl font-normal leading-tight tracking-tight text-[#063B35] sm:text-4xl">
+              More than a directory.
+              <br />
+              <span className="font-bold">A knowledge network.</span>
             </h2>
-            <p className="mt-5 max-w-xl leading-7 text-white/75">
-              Whether you are a coach, author, researcher, educator or fitness
-              industry leader, we would love to hear your story.
-            </p>
-            <a
-              href="mailto:hello@fitnessxpods.com"
-              className="partner-button mt-8 inline-flex items-center gap-2 rounded-full bg-[#B8F56A] px-8 py-4 text-sm font-extrabold text-[#073D34] transition hover:bg-[#D1FF91]"
-            >
-              Partner With FitnessXpods <ArrowIcon />
-            </a>
+            <p className="mt-4 text-sm leading-7 text-[#718078]">We bring fitness knowledge, specialist perspectives and meaningful opportunities together in one global destination.</p>
           </div>
 
-          <div className="partner-photo-frame relative z-10">
-            <img
-              src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=1200&q=90"
-              alt="Professional fitness expert in a training environment"
-              className="partner-photo"
-              loading="lazy"
-            />
-            <div className="partner-photo-glow" aria-hidden="true" />
+          <div className="mt-9 grid gap-5 md:grid-cols-3">
+            <div className="premium-card rounded-[25px] p-7 text-white">
+              <div className="flex items-center justify-between">
+                <span className="text-4xl font-black text-[#D5E98A]/80">01</span>
+                <span className="rounded-xl border border-[#D5E98A]/30 bg-white/10 p-3 text-[#D5E98A]">◎</span>
+              </div>
+              <h3 className="mt-7 text-xl font-black">A Global Network</h3>
+              <p className="mt-3 text-sm leading-7 text-white/70">Discover professionals, specialist fields and perspectives from across the fitness industry.</p>
+              <div className="mt-6 h-1 w-14 rounded-full bg-gradient-to-r from-[#BCEB62] to-[#D9BD68]" />
+            </div>
+
+            <div className="premium-card rounded-[25px] p-7 text-white">
+              <div className="flex items-center justify-between">
+                <span className="text-4xl font-black text-[#D5E98A]/80">02</span>
+                <span className="rounded-xl border border-[#D5E98A]/30 bg-white/10 p-3 text-[#D5E98A]">✧</span>
+              </div>
+              <h3 className="mt-7 text-xl font-black">Expert Knowledge</h3>
+              <p className="mt-3 text-sm leading-7 text-white/70">Explore professional experience, specialist insights, research and ideas that move fitness forward.</p>
+              <div className="mt-6 h-1 w-14 rounded-full bg-gradient-to-r from-[#BCEB62] to-[#D9BD68]" />
+            </div>
+
+            <div className="premium-card rounded-[25px] p-7 text-white">
+              <div className="flex items-center justify-between">
+                <span className="text-4xl font-black text-[#D5E98A]/80">03</span>
+                <span className="rounded-xl border border-[#D5E98A]/30 bg-white/10 p-3 text-[#D5E98A]">◉</span>
+              </div>
+              <h3 className="mt-7 text-xl font-black">Podcast Production</h3>
+              <p className="mt-3 text-sm leading-7 text-white/70">Turn your expertise into engaging audio and video conversations with professional podcast production support.</p>
+              <div className="mt-6 h-1 w-14 rounded-full bg-gradient-to-r from-[#BCEB62] to-[#D9BD68]" />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CONTACT SECTION */}
-      <section id="contact" className="contact-section px-5 py-20 sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#B8F56A]">
-              Let's start a conversation
-            </p>
-            <h2 className="mt-4 max-w-xl text-3xl font-extrabold leading-tight text-white sm:text-4xl">
-              Have a Story, an Idea or a Partnership in Mind?
-            </h2>
-            <p className="mt-5 max-w-lg leading-8 text-white/70">
-              Whether you are a fitness expert, podcast guest, industry
-              professional or potential partner, we would love to connect
-              and hear what you have in mind.
-            </p>
-          </div>
+      {/* Join network CTA */}
+      <section className="bg-white px-4 py-16 sm:px-8 lg:py-20">
+        <div className="mx-auto max-w-7xl rounded-[30px] bg-white p-2.5 shadow-[0_15px_50px_rgba(6,59,53,.09)]">
+          <div className="grid overflow-hidden rounded-[23px] bg-[#063B35] lg:grid-cols-[1.1fr_.9fr]">
+            <div className="relative flex flex-col justify-center overflow-hidden px-7 py-11 sm:px-12 lg:px-14 lg:py-14">
+              <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-[#62D957]/10 blur-3xl" />
+              <div className="section-kicker relative text-[#C5E77B]">Become part of the network</div>
 
-          <div className="contact-card rounded-3xl border border-white/10 bg-white/[0.07] p-7 shadow-2xl backdrop-blur-sm sm:p-9">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#B8F56A] text-[#073D34]">
-              <MicIcon />
+              <h2 className="relative mt-4 max-w-xl text-[30px] font-normal leading-[1.16] tracking-tight text-white sm:text-[38px] lg:text-[43px]">
+                Ready to make
+                <br />
+                an <span className="font-bold gold-text">impact?</span>
+                <br />
+                <span className="text-[25px] font-normal text-[#D8E8CB] sm:text-[30px] lg:text-[34px]">
+                  Join the <span className="font-bold text-white">FitnessXpods</span> Network.
+                </span>
+              </h2>
+
+              <p className="relative mt-4 max-w-lg text-sm leading-7 text-white/75">
+                Connect your expertise with a global fitness audience. Share your knowledge, grow your influence and be part of the conversation shaping the industry.
+              </p>
+
+              <div className="relative mt-7">
+                <Link href="/#contact" className="inline-flex rounded-full bg-gradient-to-r from-[#BCEB62] to-[#E3D17D] px-6 py-3.5 text-sm font-extrabold text-[#063B35] shadow-[0_7px_24px_rgba(190,220,91,.18)] transition hover:brightness-105">
+                  Connect With FitnessXpods <span className="ml-2">→</span>
+                </Link>
+              </div>
             </div>
-            <h3 className="mt-6 text-2xl font-extrabold text-white">
-              Get in Touch
-            </h3>
-            <p className="mt-3 text-sm leading-7 text-white/65">
-              Tell us about your expertise, your podcast idea or how you would
-              like to work with FitnessXpods.
-            </p>
-            <a
-              href="mailto:hello@fitnessxpods.com"
-              className="mt-7 flex items-center justify-between gap-3 rounded-xl bg-[#B8F56A] px-5 py-4 font-bold text-[#173D32] transition hover:bg-[#A6E75B]"
-            >
-              <span className="break-all">hello@fitnessxpods.com</span>
-              <ArrowIcon />
-            </a>
+
+            {/* Existing CTA image unchanged */}
+            <div className="relative flex min-h-[330px] items-center justify-center overflow-hidden bg-gradient-to-br from-[#174B38] to-[#063B35] p-6 sm:p-9 lg:min-h-[430px]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_25%,rgba(194,226,105,.18),transparent_42%)]" />
+              <div className="relative h-[290px] w-full max-w-[390px] rounded-[25px] bg-gradient-to-br from-[#D8EAA1] via-[#D5B967] to-[#8CCB66] p-[3px] shadow-[0_15px_45px_rgba(0,0,0,.25)] sm:h-[350px]">
+                <div className="relative h-full w-full overflow-hidden rounded-[22px] bg-[#174B38]">
+                  <img
+                    src={photo("photo-1544005313-94ddf0286df2", 1000)}
+                    alt="Professional woman representing the FitnessXpods expert community"
+                    className="h-full w-full object-cover object-center"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#063B35]/65 via-transparent to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-white/25 bg-[#063B35]/70 px-4 py-3 backdrop-blur-xl">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-[#D5E98A]">Your expertise matters</div>
+                    <div className="mt-1 text-sm font-extrabold text-white">Make your voice count.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[#062F29] px-5 pb-8 pt-12 text-white sm:px-8 lg:px-10">
-        <div className="mx-auto grid max-w-7xl gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2">
-            <a href="/" className="inline-flex items-center gap-2.5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#B8F56A] text-[#073D34]">
-                <MicIcon />
-              </span>
-              <span className="text-2xl font-extrabold tracking-tight">
-                Fitness<span className="text-[#B8F56A]">X</span>pods
-              </span>
-            </a>
-            <p className="mt-5 max-w-sm text-sm leading-7 text-white/60">
-              Connecting fitness knowledge, industry expertise and meaningful
-              conversations with a global audience.
-            </p>
+      {/* Footer */}
+      <footer className="bg-[#063B35] px-5 py-12 text-white sm:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row">
+          <div className="max-w-sm">
+            <Link href="/" className="text-2xl font-black tracking-tight">Fitness<span className="text-[#62D957]">X</span>pods</Link>
+            <p className="mt-4 text-sm leading-7 text-white/65">Connecting fitness knowledge, specialist expertise and meaningful conversations across the globe.</p>
           </div>
 
-          <div>
-            <h3 className="font-extrabold text-[#B8F56A]">Explore</h3>
-            <div className="mt-5 flex flex-col gap-3 text-sm text-white/65">
-              <a className="footer-link" href="/experts">Find Experts</a>
-              <a className="footer-link" href="/categories">Categories</a>
-              <a className="footer-link" href="#about">About Us</a>
-              <a className="footer-link" href="#partner">Partner With Us</a>
+          <div className="grid grid-cols-2 gap-12 text-sm">
+            <div>
+              <div className="mb-4 text-xs font-extrabold uppercase tracking-widest text-[#C5E77B]">Explore</div>
+              <div className="flex flex-col gap-3 text-white/75">
+                <Link href="/" className="hover:text-[#C5E77B]">Home</Link>
+                <Link href="/experts" className="hover:text-[#C5E77B]">Experts</Link>
+                <Link href="/podcasts" className="hover:text-[#C5E77B]">Podcasts</Link>
+              </div>
             </div>
-          </div>
-
-          <div>
-            <h3 className="font-extrabold text-[#B8F56A]">Get in Touch</h3>
-            <div className="mt-5 flex flex-col gap-3 text-sm text-white/65">
-              <a className="footer-link" href="mailto:hello@fitnessxpods.com">
-                hello@fitnessxpods.com
-              </a>
-              <a className="footer-link" href="#contact">Contact Us</a>
+            <div>
+              <div className="mb-4 text-xs font-extrabold uppercase tracking-widest text-[#C5E77B]">Connect</div>
+              <div className="flex flex-col gap-3 text-white/75">
+                <Link href="/#contact" className="hover:text-[#C5E77B]">Contact</Link>
+                <Link href="#directory-results" className="hover:text-[#C5E77B]">Find Experts</Link>
+                <Link href="#categories" className="hover:text-[#C5E77B]">Categories</Link>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-3 pt-7 text-xs text-white/45 sm:flex-row">
-          <p>© 2026 FitnessXpods. All rights reserved.</p>
-          <p>Connecting knowledge. Creating influence.</p>
+        <div className="mx-auto mt-10 max-w-7xl border-t border-white/15 pt-5 text-xs text-white/45">
+         © 2026 FitnessXpods. All rights reserved.
         </div>
       </footer>
-
-      {/* PAGE STYLES */}
-      <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-
-        body {
-          margin: 0;
-          background: #ffffff;
-        }
-
-        .nav-link {
-          position: relative;
-          border-radius: 12px;
-          padding: 10px 13px;
-          color: #365447;
-          font-size: 14px;
-          font-weight: 650;
-          transition: all 0.25s ease;
-        }
-
-        .nav-link:hover {
-          color: #234a34;
-          background: #eaf5df;
-          box-shadow: 0 3px 14px rgba(142, 190, 104, 0.18);
-        }
-
-        /* HERO */
-        .hero-section {
-          background:
-            radial-gradient(ellipse at 15% 45%, rgba(184, 245, 106, 0.13), transparent 36%),
-            #073d34;
-        }
-
-        .hero-photo {
-          background-image: url("https://i.shgcdn.com/d3caec4b-9c0f-434c-8db5-324170a30c98/-/format/auto/-/preview/3000x3000/-/quality/lighter/");
-          background-size: cover;
-          background-position: 72% center;
-          transform: scale(1.02);
-          filter: saturate(0.88);
-        }
-
-        .hero-overlay {
-          background:
-            linear-gradient(
-              90deg,
-              #04231d 0%,
-              rgba(4, 35, 29, 0.98) 30%,
-              rgba(4, 35, 29, 0.82) 48%,
-              rgba(4, 35, 29, 0.34) 72%,
-              rgba(4, 35, 29, 0.10) 100%
-            ),
-            linear-gradient(
-              0deg,
-              rgba(4, 35, 29, 0.24),
-              transparent 45%,
-              rgba(4, 35, 29, 0.12)
-            );
-        }
-
-        .hero-aura {
-          position: absolute;
-          z-index: -1;
-          top: 12%;
-          left: 8%;
-          width: 500px;
-          height: 400px;
-          pointer-events: none;
-          background: radial-gradient(
-            ellipse,
-            rgba(184, 245, 106, 0.16),
-            rgba(184, 245, 106, 0.045) 40%,
-            transparent 72%
-          );
-          filter: blur(28px);
-          animation: aura-breathe 7s ease-in-out infinite alternate;
-        }
-
-        .hero-heading {
-          position: relative;
-          text-shadow: 0 4px 35px rgba(184, 245, 106, 0.12);
-        }
-
-        /* INFLUENCE EFFECT - KEPT EXACTLY AS BEFORE */
-        .influence-text {
-          display: inline;
-          background: linear-gradient(
-            100deg,
-            #b8f56a 0%,
-            #e3ffb8 45%,
-            #91d64d 75%,
-            #caff85 100%
-          );
-          background-clip: text;
-          -webkit-background-clip: text;
-          color: transparent;
-          filter: drop-shadow(0 0 18px rgba(184, 245, 106, 0.24));
-        }
-
-        @keyframes aura-breathe {
-          from {
-            opacity: 0.55;
-            transform: scale(0.94);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1.08);
-          }
-        }
-
-        /* PREMIUM LUXURY SEARCH */
-        .premium-search {
-          position: relative;
-          border: 1px solid rgba(255, 255, 255, 0.85);
-          background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.99),
-            rgba(244, 250, 239, 0.97)
-          );
-          box-shadow:
-            0 18px 55px rgba(0, 0, 0, 0.3),
-            0 0 0 1px rgba(184, 245, 106, 0.15),
-            0 0 30px rgba(184, 245, 106, 0.1);
-          transition:
-            box-shadow 0.35s ease,
-            transform 0.35s ease,
-            border-color 0.35s ease;
-        }
-
-        .premium-search::before {
-          content: "";
-          position: absolute;
-          inset: -2px;
-          z-index: -1;
-          border-radius: inherit;
-          background: linear-gradient(
-            110deg,
-            rgba(184, 245, 106, 0.65),
-            transparent 35%,
-            rgba(184, 245, 106, 0.25)
-          );
-          filter: blur(12px);
-          opacity: 0.45;
-          transition: opacity 0.35s ease;
-        }
-
-        .premium-search:focus-within {
-          transform: translateY(-3px);
-          border-color: #b8f56a;
-          box-shadow:
-            0 22px 60px rgba(0, 0, 0, 0.34),
-            0 0 0 3px rgba(184, 245, 106, 0.24),
-            0 0 35px rgba(184, 245, 106, 0.2);
-        }
-
-        .premium-search:focus-within::before {
-          opacity: 0.9;
-        }
-
-        .search-icon {
-          background: linear-gradient(145deg, #f2ffdf, #d5f3ac);
-          border: 1px solid rgba(128, 177, 76, 0.22);
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.98),
-            0 5px 16px rgba(116, 165, 70, 0.22),
-            0 0 14px rgba(184, 245, 106, 0.12);
-          transition:
-            transform 0.3s ease,
-            box-shadow 0.3s ease;
-        }
-
-        .premium-search:focus-within .search-icon {
-          transform: scale(1.07);
-          box-shadow:
-            0 0 22px rgba(184, 245, 106, 0.48),
-            inset 0 1px 0 rgba(255, 255, 255, 0.95);
-        }
-
-        .premium-search-button {
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(
-            120deg,
-            #caff85 0%,
-            #b8f56a 48%,
-            #a4e653 100%
-          );
-          box-shadow:
-            0 5px 16px rgba(107, 157, 57, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.65);
-          transition:
-            transform 0.3s ease,
-            box-shadow 0.3s ease,
-            filter 0.3s ease;
-        }
-
-        .premium-search-button:hover {
-          transform: translateY(-2px);
-          filter: brightness(1.04);
-          box-shadow:
-            0 8px 23px rgba(184, 245, 106, 0.32),
-            0 0 20px rgba(184, 245, 106, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
-        }
-
-        .premium-search-button:active {
-          transform: translateY(0);
-        }
-
-        /* GREEN GLASS FEATURES - INSIDE HERO BACKGROUND */
-        .hero-features-wrap {
-          position: relative;
-          z-index: 2;
-        }
-
-        .intro-item {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 17px;
-          min-height: 112px;
-          padding: 20px 24px;
-          border: 1px solid rgba(184, 245, 106, 0.22);
-          border-radius: 20px;
-          background: rgba(5, 48, 39, 0.48);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.07),
-            0 8px 28px rgba(0, 0, 0, 0.12),
-            0 0 20px rgba(184, 245, 106, 0.035);
-          transition:
-            transform 0.3s ease,
-            border-color 0.3s ease,
-            background 0.3s ease,
-            box-shadow 0.3s ease;
-        }
-
-        .intro-item:hover {
-          transform: translateY(-4px);
-          border-color: rgba(184, 245, 106, 0.48);
-          background: rgba(7, 61, 52, 0.62);
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.09),
-            0 14px 34px rgba(0, 0, 0, 0.18),
-            0 0 24px rgba(184, 245, 106, 0.09);
-        }
-
-        .intro-icon {
-          display: flex;
-          width: 56px;
-          height: 56px;
-          flex-shrink: 0;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid rgba(184, 245, 106, 0.42);
-          border-radius: 17px;
-          background: rgba(184, 245, 106, 0.12);
-          color: #dfffad;
-          font-size: 25px;
-          box-shadow:
-            0 0 18px rgba(184, 245, 106, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-          transition:
-            box-shadow 0.3s ease,
-            transform 0.3s ease,
-            background 0.3s ease;
-        }
-
-        .intro-item:hover .intro-icon {
-          transform: scale(1.06);
-          background: rgba(184, 245, 106, 0.18);
-          box-shadow:
-            0 0 23px rgba(184, 245, 106, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.12);
-        }
-
-        /* CATEGORY PHOTOGRAPH CARDS */
-        .category-card {
-          transform: perspective(900px) rotate(0deg);
-          transition:
-            transform 0.3s ease,
-            box-shadow 0.3s ease,
-            border-color 0.3s ease;
-        }
-
-        .category-card:hover {
-          transform: perspective(900px) translateY(-5px) rotate(-0.5deg);
-          border-color: #b8d995;
-          box-shadow: 0 15px 35px rgba(30, 75, 45, 0.14);
-        }
-
-        .category-image-wrap {
-          position: relative;
-          height: 190px;
-          overflow: hidden;
-          background: #eaf3e5;
-        }
-
-        .category-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.55s ease;
-        }
-
-        .category-card:hover .category-image {
-          transform: scale(1.06);
-        }
-
-        .category-image-shade {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            180deg,
-            transparent 48%,
-            rgba(5, 38, 30, 0.24) 100%
-          );
-          pointer-events: none;
-        }
-
-        /* PARTNER CTA WITH LARGE IMAGE - UNCHANGED */
-        .partner-banner {
-          isolation: isolate;
-          background:
-            radial-gradient(ellipse at 15% 15%, rgba(184, 245, 106, 0.17), transparent 42%),
-            linear-gradient(135deg, #073d34 0%, #052d27 100%);
-          border: 1px solid rgba(184, 245, 106, 0.25);
-          box-shadow:
-            0 24px 70px rgba(7, 61, 52, 0.17),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-
-        .partner-glow {
-          position: absolute;
-          z-index: -1;
-          width: 420px;
-          height: 420px;
-          top: -230px;
-          left: 28%;
-          border-radius: 50%;
-          background: radial-gradient(
-            circle,
-            rgba(184, 245, 106, 0.2),
-            rgba(184, 245, 106, 0) 70%
-          );
-          filter: blur(12px);
-          pointer-events: none;
-        }
-
-        .partner-photo-frame {
-          min-height: 320px;
-          padding: 9px;
-          border: 1px solid rgba(184, 245, 106, 0.35);
-          border-radius: 25px;
-          background: linear-gradient(
-            145deg,
-            rgba(184, 245, 106, 0.25),
-            rgba(255, 255, 255, 0.04)
-          );
-          box-shadow:
-            0 0 35px rgba(184, 245, 106, 0.12),
-            0 20px 45px rgba(0, 0, 0, 0.2);
-        }
-
-        .partner-photo {
-          position: relative;
-          z-index: 1;
-          display: block;
-          width: 100%;
-          height: 320px;
-          border-radius: 18px;
-          object-fit: cover;
-          object-position: center;
-        }
-
-        .partner-photo-glow {
-          position: absolute;
-          z-index: -1;
-          inset: 15%;
-          border-radius: 50%;
-          background: rgba(184, 245, 106, 0.2);
-          filter: blur(55px);
-          pointer-events: none;
-        }
-
-        .partner-button {
-          box-shadow: 0 8px 25px rgba(184, 245, 106, 0.16);
-        }
-
-        .partner-button:hover {
-          transform: translateY(-2px);
-          box-shadow:
-            0 10px 30px rgba(184, 245, 106, 0.3),
-            0 0 20px rgba(184, 245, 106, 0.12);
-        }
-
-        /* CONTACT */
-        .contact-section {
-          background:
-            radial-gradient(ellipse at 85% 15%, rgba(184, 245, 106, 0.13), transparent 35%),
-            linear-gradient(135deg, #073d34 0%, #052d27 100%);
-        }
-
-        .contact-card {
-          transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-
-        .contact-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(184, 245, 106, 0.4);
-        }
-
-        /* FOOTER */
-        .footer-link {
-          transition: color 0.2s ease;
-        }
-
-        .footer-link:hover {
-          color: #b8f56a;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 640px) {
-          .hero-photo {
-            background-position: 65% center;
-          }
-
-          .hero-overlay {
-            background: linear-gradient(
-              90deg,
-              rgba(4, 35, 29, 0.96),
-              rgba(4, 35, 29, 0.82)
-            );
-          }
-
-          .hero-aura {
-            left: -120px;
-            width: 350px;
-          }
-
-          .category-image-wrap {
-            height: 205px;
-          }
-
-          .partner-photo-frame {
-            min-height: 250px;
-          }
-
-          .partner-photo {
-            height: 250px;
-          }
-
-          .intro-item {
-            min-height: 96px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          *,
-          *::before,
-          *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            scroll-behavior: auto !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
