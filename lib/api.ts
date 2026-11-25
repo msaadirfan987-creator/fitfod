@@ -1,7 +1,13 @@
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(
-  /\/$/,
-  ""
-);
+function normalizeApiBaseUrl(rawUrl: string | undefined): string {
+  const trimmed = (rawUrl || "").trim().replace(/\/$/, "");
+  if (!trimmed) return "";
+  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("/")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+const API_BASE_URL = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
 
 export interface ApiCategory {
   id: number;
@@ -33,7 +39,20 @@ export interface ApiExpert {
 }
 
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { signal });
+  const url = `${API_BASE_URL}${path}`;
+  let response: Response;
+  try {
+    response = await fetch(url, { signal });
+  } catch (err) {
+    if ((err as Error).name === "AbortError") {
+      throw err;
+    }
+    throw new Error(
+      `Failed to connect to API (${url}): ${
+        err instanceof Error ? err.message : "Network error"
+      }`
+    );
+  }
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
     try {

@@ -12,21 +12,25 @@ const allowedOrigins = rawClientUrl
   .map((origin) => origin.trim().replace(/\/$/, ''))
   .filter(Boolean);
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes('*')) {
-        return callback(null, true);
-      }
-      const normalized = origin.replace(/\/$/, '');
-      if (allowedOrigins.includes(normalized)) {
-        return callback(null, true);
-      }
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes('*')) {
+      return callback(null, true);
+    }
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+    if (process.env.VERCEL && /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(normalized)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+};
+
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
