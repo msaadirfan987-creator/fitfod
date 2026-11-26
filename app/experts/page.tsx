@@ -569,12 +569,12 @@ export default function ExpertsPage() {
               featuredExperts.map((expert) => (
                 <article key={expert.id} className="expert-luxury group overflow-hidden rounded-[25px]">
                   <Link href={`/experts/${expert.slug}`} className="block">
-                    <div className="relative h-64 w-full overflow-hidden bg-[#E4ECE2]">
+                    <div className="relative h-60 w-full overflow-hidden bg-gradient-to-br from-[#0F493C] to-[#063B35] p-3">
                       <ExpertPhoto
                         imageUrl={expert.imageUrl}
                         name={expert.name}
                         initials={expert.initials}
-                        className="h-full w-full transition duration-500 group-hover:scale-105"
+                        className="h-full w-full rounded-xl transition duration-500 group-hover:scale-105"
                         initialsClassName="text-5xl font-black tracking-tight text-[#174B38]"
                       />
                       <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-[#063B35]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">Featured</div>
