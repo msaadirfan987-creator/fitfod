@@ -138,7 +138,7 @@ export function ExpertCard({ expert }: { expert: ExpertCardItem }) {
     <article className="directory-luxury group flex flex-col overflow-hidden rounded-2xl bg-white">
       <Link
         href={`/experts/${expert.slug}`}
-        className="relative block aspect-[4/5] w-full overflow-hidden rounded-t-2xl bg-[#E4ECE2]"
+        className="relative block h-56 w-full overflow-hidden rounded-t-2xl bg-[#E4ECE2]"
       >
         <ExpertPhoto
           imageUrl={expert.imageUrl}

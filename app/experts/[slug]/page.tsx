@@ -155,7 +155,7 @@ export default function ExpertProfilePage() {
 
           <div className="relative mx-auto w-full max-w-md">
             <div className="absolute -inset-4 rounded-[2rem] border border-white/20" />
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] bg-[#E4ECE2] shadow-2xl">
+            <div className="relative h-[360px] w-full overflow-hidden rounded-[1.5rem] bg-[#E4ECE2] shadow-2xl sm:h-[380px]">
               <ExpertPhoto
                 imageUrl={expert.image_url?.trim() || null}
                 name={expert.name}
