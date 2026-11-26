@@ -1,14 +1,3 @@
-function normalizeApiBaseUrl(rawUrl: string | undefined): string {
-  const trimmed = (rawUrl || "").trim().replace(/\/$/, "");
-  if (!trimmed) return "";
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("/")) {
-    return trimmed;
-  }
-  return `https://${trimmed}`;
-}
-
-const API_BASE_URL = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
-
 export interface ApiCategory {
   id: number;
   name: string;
@@ -38,11 +27,23 @@ export interface ApiExpert {
   } | null;
 }
 
+function getApiBaseUrl(): string {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+  if (!raw) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_API_URL environment variable"
+    );
+  }
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const url = `${API_BASE_URL}${path}`;
+  const baseUrl = getApiBaseUrl();
+  const url = `${baseUrl}${path}`;
+
   let response: Response;
   try {
-    response = await fetch(url, { signal });
+    response = await fetch(url, { signal, cache: "no-store" });
   } catch (err) {
     if ((err as Error).name === "AbortError") {
       throw err;
@@ -53,6 +54,7 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
       }`
     );
   }
+
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
     try {
@@ -65,14 +67,15 @@ async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
     }
     throw new Error(message);
   }
+
   return response.json() as Promise<T>;
 }
 
-export function fetchCategories(signal?: AbortSignal): Promise<ApiCategory[]> {
+export function getCategories(signal?: AbortSignal): Promise<ApiCategory[]> {
   return request<ApiCategory[]>("/api/categories", signal);
 }
 
-export function fetchExperts(
+export function getExperts(
   categorySlug?: string,
   signal?: AbortSignal
 ): Promise<ApiExpert[]> {
@@ -82,7 +85,7 @@ export function fetchExperts(
   return request<ApiExpert[]>(`/api/experts${query}`, signal);
 }
 
-export function fetchExpertBySlug(
+export function getExpertBySlug(
   slug: string,
   signal?: AbortSignal
 ): Promise<ApiExpert> {

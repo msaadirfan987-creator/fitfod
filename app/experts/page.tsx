@@ -1,169 +1,254 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import {
+  ApiCategory,
+  ApiExpert,
+  getCategories,
+  getExperts,
+} from "../../lib/api";
 
-const categories = [
-  { name: "Weight Loss", desc: "Fat loss, metabolic health and obesity", image: "photo-1571019613454-1cb2f99b2d8b" },
-  { name: "Nutrition & Diet", desc: "Keto, Mediterranean, vegan and paleo", image: "photo-1490645935967-10de6ba17061" },
-  { name: "Strength Training", desc: "Weightlifting, bodybuilding and powerlifting", image: "photo-1583454110551-21f2fa2afe61" },
-  { name: "Cardiovascular Fitness", desc: "Heart health and aerobic conditioning", image: "photo-1538805060514-97d9cc17730c" },
-  { name: "Running", desc: "Marathons, jogging and trail running", image: "photo-1552674605-db6ffd4facb5" },
-  { name: "Walking & Hiking", desc: "Daily walking, trekking and rucking", image: "photo-1551632811-561732d1e306" },
-  { name: "Yoga", desc: "Hatha, Vinyasa and restorative yoga", image: "photo-1544367567-0f2fcb009e0b" },
-  { name: "Pilates", desc: "Mat, reformer and core strengthening", image: "photo-1518611012118-696072aa579a" },
-  { name: "Mobility & Flexibility", desc: "Stretching and joint mobility", image: "photo-1517836357463-d25dfeac3438" },
-  { name: "Longevity & Healthy Aging", desc: "Fitness over 50, 60 and 70", image: "photo-1517841905240-472988babdf9" },
-  { name: "Women's Fitness", desc: "Pregnancy, postpartum and menopause", image: "photo-1518611012118-696072aa579a" },
-  { name: "Men's Fitness", desc: "Muscle development and age-related fitness", image: "photo-1534438327276-14e5300c3a48" },
-  { name: "Sports Performance", desc: "Athletic training, speed and agility", image: "photo-1461896836934-ffe607ba8211" },
-  { name: "Functional Fitness", desc: "Everyday strength and balance", image: "photo-1517963879433-6ad2b056d712" },
-  { name: "HIIT & Conditioning", desc: "Interval training and circuit workouts", image: "photo-1517838277536-f4e3b9c7c8b4" },
-  { name: "Recovery & Injury Prevention", desc: "Rehabilitation and physical therapy", image: "photo-1571019614242-c5c5dee9f50b" },
-  { name: "Sleep & Recovery", desc: "Sleep optimization and rest", image: "photo-1541781774459-bb2af2f05b55" },
-  { name: "Mind-Body Wellness", desc: "Meditation and stress reduction", image: "photo-1506126613408-eca07ce68773" },
-  { name: "Outdoor Fitness", desc: "Cycling, swimming and adventure", image: "photo-1471506480208-91b3a4cc78be" },
-  { name: "Fitness Technology", desc: "Wearables, tracking and AI coaching", image: "photo-1510017803434-a899398421b3" },
-  { name: "Specialized Fitness", desc: "Disability-adapted and inclusive fitness", image: "photo-1534438327276-14e5300c3a48" },
-];
+interface CategoryCardItem {
+  id: number;
+  name: string;
+  slug: string;
+  desc: string;
+  image: string | null;
+}
 
-const experts = [
-  {
-    id: 1,
-    name: "Expert Profile 01",
-    role: "Nutrition & Wellness Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a professional specializing in nutrition, metabolic health and wellness.",
-    categories: ["Nutrition & Diet", "Weight Loss", "Women's Fitness"],
-    image: "photo-1534528741775-53994a69daeb",
-    initials: "01",
-    featured: true,
-  },
-  {
-    id: 2,
-    name: "Expert Profile 02",
-    role: "Strength & Conditioning Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a professional working in strength, conditioning and athletic performance.",
-    categories: ["Strength Training", "Sports Performance", "Functional Fitness"],
-    image: "photo-1583454110551-21f2fa2afe61",
-    initials: "02",
-    featured: true,
-  },
-  {
-    id: 3,
-    name: "Expert Profile 03",
-    role: "Yoga & Mind-Body Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a specialist in movement, flexibility and mind-body wellness.",
-    categories: ["Yoga", "Mobility & Flexibility", "Mind-Body Wellness"],
-    image: "photo-1580489944761-15a19d654956",
-    initials: "03",
-    featured: true,
-  },
-  {
-    id: 4,
-    name: "Expert Profile 04",
-    role: "Running & Endurance Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing an endurance and cardiovascular fitness professional.",
-    categories: ["Running", "Cardiovascular Fitness", "Outdoor Fitness"],
-    image: "photo-1500648767791-00dcc994a43e",
-    initials: "04",
-    featured: false,
-  },
-  {
-    id: 5,
-    name: "Expert Profile 05",
-    role: "Recovery & Healthy Aging Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a professional focused on recovery and healthy aging.",
-    categories: ["Longevity & Healthy Aging", "Recovery & Injury Prevention", "Sleep & Recovery"],
-    image: "photo-1506794778202-cad84cf45f1d",
-    initials: "05",
-    featured: false,
-  },
-  {
-    id: 6,
-    name: "Expert Profile 06",
-    role: "Fitness Technology Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a professional exploring fitness technology and training.",
-    categories: ["Fitness Technology", "HIIT & Conditioning", "Men's Fitness"],
-    image: "photo-1507003211169-0a1dd7228f2d",
-    initials: "06",
-    featured: false,
-  },
-  {
-    id: 7,
-    name: "Expert Profile 07",
-    role: "Pilates & Mobility Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing a professional in Pilates, movement and mobility.",
-    categories: ["Pilates", "Mobility & Flexibility", "Functional Fitness"],
-    image: "photo-1531123897727-8f129e1688ce",
-    initials: "07",
-    featured: false,
-  },
-  {
-    id: 8,
-    name: "Expert Profile 08",
-    role: "Outdoor Fitness Specialist",
-    location: "Global Network",
-    bio: "A demo profile representing an outdoor fitness and adventure professional.",
-    categories: ["Outdoor Fitness", "Walking & Hiking", "Sports Performance"],
-    image: "photo-1506794778202-cad84cf45f1d",
-    initials: "08",
-    featured: false,
-  },
-];
+interface ExpertCardItem {
+  id: number;
+  slug: string;
+  rank: number | null;
+  name: string;
+  role: string;
+  subCategory: string | null;
+  credentials: string | null;
+  books: string | null;
+  socialProof: string | null;
+  podcastStatus: string | null;
+  categories: string[];
+  initials: string;
+  featured: boolean;
+  website: string | null;
+  instagram: string | null;
+}
+
+const CATEGORY_IMAGE_BY_SLUG: Record<string, string> = {
+  "weight-loss": "photo-1571019613454-1cb2f99b2d8b",
+  "nutrition-diet": "photo-1490645935967-10de6ba17061",
+  "strength-training": "photo-1583454110551-21f2fa2afe61",
+  "cardiovascular-fitness": "photo-1538805060514-97d9cc17730c",
+  running: "photo-1552674605-db6ffd4facb5",
+  "walking-hiking": "photo-1551632811-561732d1e306",
+  yoga: "photo-1544367567-0f2fcb009e0b",
+  pilates: "photo-1518611012118-696072aa579a",
+  "mobility-flexibility": "photo-1517836357463-d25dfeac3438",
+  "longevity-healthy-aging": "photo-1517841905240-472988babdf9",
+  "womens-fitness": "photo-1518611012118-696072aa579a",
+  "mens-fitness": "photo-1534438327276-14e5300c3a48",
+  "sports-performance": "photo-1461896836934-ffe607ba8211",
+  "functional-fitness": "photo-1517963879433-6ad2b056d712",
+  "hiit-conditioning": "photo-1517838277536-f4e3b9c7c8b4",
+  "recovery-injury-prevention": "photo-1571019614242-c5c5dee9f50b",
+  "sleep-recovery": "photo-1541781774459-bb2af2f05b55",
+  "mind-body-wellness": "photo-1506126613408-eca07ce68773",
+  "outdoor-fitness": "photo-1471506480208-91b3a4cc78be",
+  "fitness-technology": "photo-1510017803434-a899398421b3",
+  "specialized-fitness": "photo-1534438327276-14e5300c3a48",
+};
+
+function getInitials(name: string, rank: number | null): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+  if (parts.length === 1 && parts[0].length >= 2) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
+  return rank ? String(rank).padStart(2, "0") : "EX";
+}
+
+function normalizeUrl(value: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function normalizeInstagramUrl(value: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const handle = trimmed.replace(/^@/, "");
+  return handle ? `https://instagram.com/${handle}` : null;
+}
+
+function mapCategoryFromApi(category: ApiCategory): CategoryCardItem {
+  return {
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
+    desc: category.subcategories || "",
+    image: CATEGORY_IMAGE_BY_SLUG[category.slug] || null,
+  };
+}
+
+function mapExpertFromApi(expert: ApiExpert): ExpertCardItem {
+  const categoryTags = Array.from(
+    new Set(
+      [expert.categories?.name, expert.sub_category].filter(
+        (item): item is string => Boolean(item && item.trim())
+      )
+    )
+  );
+
+  return {
+    id: expert.id,
+    slug: expert.slug,
+    rank: expert.rank,
+    name: expert.name,
+    role: expert.sub_category || expert.categories?.name || "Fitness Specialist",
+    subCategory: expert.sub_category?.trim() || null,
+    credentials: expert.credentials?.trim() || null,
+    books: expert.books?.trim() || null,
+    socialProof: expert.social_proof?.trim() || null,
+    podcastStatus:
+      expert.podcast_status && expert.podcast_status.trim() !== "None found"
+        ? expert.podcast_status.trim()
+        : null,
+    categories: categoryTags,
+    initials: getInitials(expert.name, expert.rank),
+    featured: typeof expert.rank === "number" ? expert.rank <= 3 : false,
+    website: normalizeUrl(expert.website),
+    instagram: normalizeInstagramUrl(expert.instagram),
+  };
+}
 
 const photo = (id: string, width = 800) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
 
-const roles = Array.from(new Set(experts.map((expert) => expert.role)));
-const locations = ["Global Network"];
-
 export default function ExpertsPage() {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All Categories");
-  useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const selectedCategory = params.get("category");
+  const [categories, setCategories] = useState<CategoryCardItem[]>([]);
+  const [experts, setExperts] = useState<ExpertCardItem[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [expertsLoading, setExpertsLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [expertsError, setExpertsError] = useState<string | null>(null);
 
-  if (
-    selectedCategory &&
-    categories.some((item) => item.name === selectedCategory)
-  ) {
-    setCategory(selectedCategory);
-    setPage(1);
-  }
-}, []);
+  const [search, setSearch] = useState("");
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState("");
+  const [initialCategoryParam, setInitialCategoryParam] = useState<string | null>(
+    null
+  );
   const [role, setRole] = useState("All Roles");
-  const [location, setLocation] = useState("All Locations");
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlSearch = params.get("search");
+    const urlCategory = params.get("category");
+    if (urlSearch) {
+      setSearch(urlSearch);
+    }
+    if (urlCategory) {
+      setInitialCategoryParam(urlCategory);
+    }
+  }, []);
+
+  const loadCategories = useCallback(async (signal?: AbortSignal) => {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
+    try {
+      const data = await getCategories(signal);
+      setCategories(data.map(mapCategoryFromApi));
+    } catch (err) {
+      if ((err as Error).name === "AbortError") return;
+      setCategoriesError(
+        err instanceof Error ? err.message : "Failed to load categories"
+      );
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadCategories(controller.signal);
+    return () => controller.abort();
+  }, [loadCategories]);
+
+  useEffect(() => {
+    if (!initialCategoryParam || categories.length === 0) return;
+    const normalized = initialCategoryParam.trim().toLowerCase();
+    const match = categories.find(
+      (item) =>
+        item.slug.toLowerCase() === normalized ||
+        item.name.toLowerCase() === normalized
+    );
+    if (match) {
+      setSelectedCategorySlug(match.slug);
+    }
+    setInitialCategoryParam(null);
+  }, [initialCategoryParam, categories]);
+
+  const loadExperts = useCallback(
+    async (categorySlug: string, signal?: AbortSignal) => {
+      setExpertsLoading(true);
+      setExpertsError(null);
+      try {
+        const data = await getExperts(categorySlug || undefined, signal);
+        setExperts(data.map(mapExpertFromApi));
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setExpertsError(
+          err instanceof Error ? err.message : "Failed to load experts"
+        );
+      } finally {
+        setExpertsLoading(false);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadExperts(selectedCategorySlug, controller.signal);
+    return () => controller.abort();
+  }, [selectedCategorySlug, loadExperts]);
+
+  const roles = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          experts
+            .map((expert) => expert.subCategory)
+            .filter((item): item is string => Boolean(item))
+        )
+      ),
+    [experts]
+  );
+
   const filteredExperts = useMemo(() => {
     return experts.filter((expert) => {
+      const q = search.toLowerCase();
       const searchMatch =
         !search ||
-        expert.name.toLowerCase().includes(search.toLowerCase()) ||
-        expert.role.toLowerCase().includes(search.toLowerCase()) ||
-        expert.bio.toLowerCase().includes(search.toLowerCase()) ||
-        expert.categories.some((item) =>
-          item.toLowerCase().includes(search.toLowerCase())
-        );
+        expert.name.toLowerCase().includes(q) ||
+        expert.role.toLowerCase().includes(q) ||
+        (expert.credentials && expert.credentials.toLowerCase().includes(q)) ||
+        (expert.books && expert.books.toLowerCase().includes(q)) ||
+        (expert.socialProof && expert.socialProof.toLowerCase().includes(q)) ||
+        expert.categories.some((item) => item.toLowerCase().includes(q));
 
-      const categoryMatch =
-        category === "All Categories" || expert.categories.includes(category);
-      const roleMatch = role === "All Roles" || expert.role === role;
-      const locationMatch =
-        location === "All Locations" || expert.location === location;
+      const roleMatch = role === "All Roles" || expert.subCategory === role;
 
-      return searchMatch && categoryMatch && roleMatch && locationMatch;
+      return searchMatch && roleMatch;
     });
-  }, [search, category, role, location]);
+  }, [experts, search, role]);
 
   const pageSize = 6;
   const totalPages = Math.max(1, Math.ceil(filteredExperts.length / pageSize));
@@ -172,15 +257,20 @@ export default function ExpertsPage() {
     page * pageSize
   );
 
-  const resetFilters = () => {
-    setSearch("");
-    setCategory("All Categories");
+  const handleCategoryChange = (slug: string) => {
+    setSelectedCategorySlug(slug);
     setRole("All Roles");
-    setLocation("All Locations");
     setPage(1);
   };
 
-  const featuredExperts = experts.filter((expert) => expert.featured);
+  const resetFilters = () => {
+    setSearch("");
+    setSelectedCategorySlug("");
+    setRole("All Roles");
+    setPage(1);
+  };
+
+  const featuredExperts = experts.filter((expert) => expert.featured).slice(0, 3);
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#F5F6F3] text-[#173D34]">
@@ -380,30 +470,27 @@ export default function ExpertsPage() {
             </Link>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <input
+              suppressHydrationWarning
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Expert name or topic"
               className="golden-input min-w-0 rounded-xl px-4 py-3 text-sm text-[#23473C] placeholder:text-[#8A978E]"
             />
-            <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
-              <option>All Categories</option>
-              {categories.map((item) => <option key={item.name}>{item.name}</option>)}
+            <select suppressHydrationWarning value={selectedCategorySlug} onChange={(e) => handleCategoryChange(e.target.value)} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
+              <option value="">All Categories</option>
+              {categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             </select>
-            <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
+            <select suppressHydrationWarning value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
               <option>All Roles</option>
               {roles.map((item) => <option key={item}>{item}</option>)}
-            </select>
-            <select value={location} onChange={(e) => { setLocation(e.target.value); setPage(1); }} className="golden-input rounded-xl px-3 py-3 text-sm text-[#345448]">
-              <option>All Locations</option>
-              {locations.map((item) => <option key={item}>{item}</option>)}
             </select>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-[#839087]">Search by specialist, category, professional role or location.</p>
-            <button onClick={resetFilters} className="text-xs font-bold text-[#438D35] hover:text-[#063B35]">Clear filters ↺</button>
+            <p className="text-xs text-[#839087]">Search by specialist, category or specialty.</p>
+            <button suppressHydrationWarning onClick={resetFilters} className="text-xs font-bold text-[#438D35] hover:text-[#063B35]">Clear filters ↺</button>
           </div>
         </div>
       </section>
@@ -422,42 +509,73 @@ export default function ExpertsPage() {
               </p>
             </div>
             <div className="rounded-full border border-[#D9D49A] bg-gradient-to-r from-[#F3FAE9] to-[#FBF5DF] px-4 py-2 text-xs font-extrabold text-[#718D32]">
-              21 specialist categories
+              {categories.length || 21} specialist categories
             </div>
           </div>
 
           <div className="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {categories.slice(0, showAllCategories ? 21 : 8).map((item, index) => (
-              <button
-                key={item.name}
-                onClick={() => {
-                  setCategory(item.name);
-                  setPage(1);
-                  document.getElementById("directory-results")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="lime-glow group overflow-hidden rounded-2xl border border-[#E8EEE5] bg-white text-left shadow-[0_5px_18px_rgba(6,59,53,.04)]"
-              >
-                <div className="relative h-32 overflow-hidden sm:h-40">
-                  <img src={photo(item.image, 600)} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#063B35]/75 via-transparent to-transparent" />
-                  <div className="absolute bottom-3 left-3 rounded-full border border-white/30 bg-[#063B35]/50 px-2.5 py-1 text-[9px] font-bold tracking-widest text-white backdrop-blur-md">
-                    FIELD {String(index + 1).padStart(2, "0")}
+            {categoriesLoading ? (
+              Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="overflow-hidden rounded-2xl border border-[#E8EEE5] bg-white shadow-[0_5px_18px_rgba(6,59,53,.04)]"
+                >
+                  <div className="h-32 animate-pulse bg-[#E8F1E6] sm:h-40" />
+                  <div className="p-3.5 sm:p-4">
+                    <div className="h-4 w-3/4 animate-pulse rounded bg-[#E8F1E6]" />
+                    <div className="mt-2 h-3 w-full animate-pulse rounded bg-[#F1F6EF]" />
                   </div>
                 </div>
-                <div className="p-3.5 sm:p-4">
-                  <h3 className="text-sm font-extrabold leading-snug text-[#174B38] sm:text-base">{item.name}</h3>
-                  <p className="mt-1.5 text-[11px] leading-5 text-[#78867E] sm:text-xs">{item.desc}</p>
-                  <div className="mt-3 text-[11px] font-bold text-[#429B3A]">Explore specialists <span className="ml-1 transition group-hover:ml-2">→</span></div>
-                </div>
-              </button>
-            ))}
+              ))
+            ) : categoriesError ? (
+              <div className="col-span-full rounded-2xl border border-dashed border-[#C8D9C5] bg-[#F8FAF7] px-5 py-10 text-center">
+                <div className="text-base font-black text-[#174B38]">Unable to load categories</div>
+                <p className="mt-1 text-sm text-[#78867E]">{categoriesError}</p>
+                <button
+                  suppressHydrationWarning
+                  onClick={() => loadCategories()}
+                  className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              categories.slice(0, showAllCategories ? categories.length : 8).map((item, index) => (
+                <button
+                  suppressHydrationWarning
+                  key={item.slug}
+                  onClick={() => {
+                    handleCategoryChange(item.slug);
+                    document.getElementById("directory-results")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="lime-glow group overflow-hidden rounded-2xl border border-[#E8EEE5] bg-white text-left shadow-[0_5px_18px_rgba(6,59,53,.04)]"
+                >
+                  <div className="relative h-32 overflow-hidden bg-[#DDE8DC] sm:h-40">
+                    {item.image && (
+                      <img src={photo(item.image, 600)} alt={item.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" loading="lazy" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#063B35]/75 via-transparent to-transparent" />
+                    <div className="absolute bottom-3 left-3 rounded-full border border-white/30 bg-[#063B35]/50 px-2.5 py-1 text-[9px] font-bold tracking-widest text-white backdrop-blur-md">
+                      FIELD {String(index + 1).padStart(2, "0")}
+                    </div>
+                  </div>
+                  <div className="p-3.5 sm:p-4">
+                    <h3 className="text-sm font-extrabold leading-snug text-[#174B38] sm:text-base">{item.name}</h3>
+                    <p className="mt-1.5 text-[11px] leading-5 text-[#78867E] sm:text-xs">{item.desc}</p>
+                    <div className="mt-3 text-[11px] font-bold text-[#429B3A]">Explore specialists <span className="ml-1 transition group-hover:ml-2">→</span></div>
+                  </div>
+                </button>
+              ))
+            )}
           </div>
 
-          <div className="mt-9 text-center">
-            <button onClick={() => setShowAllCategories(!showAllCategories)} className="rounded-full border border-[#C6D98A] bg-gradient-to-r from-white to-[#F8F9E9] px-7 py-3 text-sm font-extrabold text-[#638B35] shadow-[0_5px_18px_rgba(185,216,91,.10)] transition hover:border-[#8BD77D] hover:shadow-[0_0_20px_rgba(98,217,87,.18)]">
-              {showAllCategories ? "Show fewer categories ↑" : "Explore all 21 categories ↓"}
-            </button>
-          </div>
+          {categories.length > 8 && (
+            <div className="mt-9 text-center">
+              <button suppressHydrationWarning onClick={() => setShowAllCategories(!showAllCategories)} className="rounded-full border border-[#C6D98A] bg-gradient-to-r from-white to-[#F8F9E9] px-7 py-3 text-sm font-extrabold text-[#638B35] shadow-[0_5px_18px_rgba(185,216,91,.10)] transition hover:border-[#8BD77D] hover:shadow-[0_0_20px_rgba(98,217,87,.18)]">
+                {showAllCategories ? "Show fewer categories ↑" : `Explore all ${categories.length} categories ↓`}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -476,35 +594,71 @@ export default function ExpertsPage() {
           </div>
 
           <div className="mt-9 grid gap-6 md:grid-cols-3">
-            {featuredExperts.map((expert) => (
-  <Link
-    key={expert.id}
-    href={`/experts/${expert.id}`}
-    className="expert-luxury group block overflow-hidden rounded-[25px]"
-  >
-    <div className="relative h-64 overflow-hidden bg-[#DDE8DC]">
-                  <img src={photo(expert.image, 850)} alt={expert.name} className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105" loading="lazy" />
-                  <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-[#063B35]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">Featured</div>
-                  <div className="absolute right-4 top-4 rounded-full border border-[#E6D18B]/60 bg-[#063B35]/75 px-3 py-1.5 text-[10px] font-bold text-[#E9D994] backdrop-blur-md">Profile {expert.initials}</div>
-                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#063B35]/65 to-transparent" />
-                  <div className="absolute bottom-4 left-4 text-xs font-semibold text-white">FitnessXpods Network</div>
-                </div>
+            {expertsLoading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <article key={index} className="expert-luxury overflow-hidden rounded-[25px] bg-white">
+                  <div className="h-64 animate-pulse bg-[#DDE8DC]" />
+                  <div className="p-6">
+                    <div className="h-3 w-24 animate-pulse rounded bg-[#E8F1E6]" />
+                    <div className="mt-3 h-6 w-2/3 animate-pulse rounded bg-[#E8F1E6]" />
+                    <div className="mt-3 h-4 w-full animate-pulse rounded bg-[#F1F6EF]" />
+                  </div>
+                </article>
+              ))
+            ) : (
+              featuredExperts.map((expert) => (
+                <article key={expert.id} className="expert-luxury group overflow-hidden rounded-[25px]">
+                  <Link href={`/experts/${expert.slug}`} className="block">
+                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#174B38] to-[#063B35]">
+                      <div className="flex h-full w-full items-center justify-center">
+                        <span className="text-5xl font-black tracking-tight text-[#C7E979]/85">{expert.initials}</span>
+                      </div>
+                      <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-[#063B35]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">Featured</div>
+                      <div className="absolute right-4 top-4 rounded-full border border-[#E6D18B]/60 bg-[#063B35]/75 px-3 py-1.5 text-[10px] font-bold text-[#E9D994] backdrop-blur-md">
+                        {expert.rank ? `Rank #${expert.rank}` : `Profile ${expert.initials}`}
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#063B35]/65 to-transparent" />
+                      <div className="absolute bottom-4 left-4 text-xs font-semibold text-white">FitnessXpods Network</div>
+                    </div>
+                  </Link>
 
-                <div className="p-6">
-                  <div className="text-[10px] font-bold uppercase tracking-[.17em] text-[#9A843A]">Specialist · {expert.initials}</div>
-                  <h3 className="mt-2 text-xl font-extrabold text-[#063B35]">{expert.role}</h3>
-                  <p className="mt-3 text-sm leading-6 text-[#718078]">{expert.bio}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {expert.categories.map((item) => (
-                      <span key={item} className="rounded-full border border-[#DDE9C9] bg-gradient-to-r from-[#F3F8E9] to-[#FBF7E9] px-3 py-1.5 text-[10px] font-bold text-[#587B35]">{item}</span>
-                    ))}
+                  <div className="p-6">
+                    <div className="text-[10px] font-bold uppercase tracking-[.17em] text-[#9A843A]">{expert.role}</div>
+                    <Link href={`/experts/${expert.slug}`} className="block">
+                      <h3 className="mt-2 text-xl font-extrabold text-[#063B35] hover:underline">{expert.name}</h3>
+                    </Link>
+                    {expert.credentials && (
+                      <p className="mt-3 text-sm leading-6 text-[#718078]">{expert.credentials}</p>
+                    )}
+                    {expert.books && (
+                      <p className="mt-2 text-xs leading-5 text-[#597166]">Books: {expert.books}</p>
+                    )}
+                    {expert.socialProof && (
+                      <p className="mt-1.5 text-[11px] font-medium text-[#72966B]">{expert.socialProof}</p>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {expert.categories.map((item) => (
+                        <span key={item} className="rounded-full border border-[#DDE9C9] bg-gradient-to-r from-[#F3F8E9] to-[#FBF7E9] px-3 py-1.5 text-[10px] font-bold text-[#587B35]">{item}</span>
+                      ))}
+                    </div>
+                    {(expert.website || expert.instagram) && (
+                      <div className="mt-5 flex flex-wrap items-center gap-4 border-t border-[#EDF0EA] pt-4 text-[11px] font-semibold text-[#587B35]">
+                        {expert.website && (
+                          <a href={expert.website} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
+                            Website
+                          </a>
+                        )}
+                        {expert.instagram && (
+                          <a href={expert.instagram} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
+                            Instagram
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="mt-5 border-t border-[#EDF0EA] pt-4">
-                    <span className="text-[10px] font-semibold text-[#9A6C22]">Illustrative demo profile · Not a verified expert</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </article>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -518,79 +672,122 @@ export default function ExpertsPage() {
               <h2 className="text-3xl font-normal tracking-tight text-[#063B35] sm:text-4xl">
                 Explore all <span className="font-bold">experts</span>
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#718078]">Search the directory and discover professionals by expertise, specialism and location.</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-[#718078]">Search the directory and discover professionals by expertise and specialism.</p>
             </div>
             <div className="rounded-full border border-[#BFE1B9] bg-gradient-to-r from-white to-[#E5F5E2] px-4 py-2 text-xs font-bold text-[#438D42]">
-              {filteredExperts.length} demo profiles shown
+              {expertsLoading ? "Loading experts..." : `${filteredExperts.length} experts shown`}
             </div>
           </div>
 
           <div className="mt-7 flex flex-col gap-3 rounded-2xl border border-[#CDE5C9] bg-gradient-to-r from-white via-[#F2FAF0] to-[#E4F3E1] p-4 shadow-[0_12px_34px_rgba(40,110,55,.08)] sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm font-bold text-[#174B38]">Refine your results</div>
             <div className="flex flex-wrap gap-2">
-              <select value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
-                <option>All Categories</option>
-                {categories.map((item) => <option key={item.name}>{item.name}</option>)}
+              <select suppressHydrationWarning value={selectedCategorySlug} onChange={(e) => handleCategoryChange(e.target.value)} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
+                <option value="">All Categories</option>
+                {categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
               </select>
-              <select value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
+              <select suppressHydrationWarning value={role} onChange={(e) => { setRole(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
                 <option>All Roles</option>
                 {roles.map((item) => <option key={item}>{item}</option>)}
               </select>
-              <select value={location} onChange={(e) => { setLocation(e.target.value); setPage(1); }} className="golden-input max-w-full rounded-xl px-3 py-2.5 text-xs">
-                <option>All Locations</option>
-                {locations.map((item) => <option key={item}>{item}</option>)}
-              </select>
-              <button onClick={resetFilters} className="rounded-xl border border-[#BFE1B9] bg-white px-4 py-2.5 text-xs font-bold text-[#438D42] hover:bg-[#EFF9ED]">Clear filters</button>
+              <button suppressHydrationWarning onClick={resetFilters} className="rounded-xl border border-[#BFE1B9] bg-white px-4 py-2.5 text-xs font-bold text-[#438D42] hover:bg-[#EFF9ED]">Clear filters</button>
             </div>
           </div>
 
-          {visibleExperts.length > 0 ? (
+          {expertsLoading ? (
+            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <article key={index} className="directory-luxury overflow-hidden rounded-2xl bg-white p-5">
+                  <div className="flex gap-4">
+                    <div className="h-24 w-24 shrink-0 animate-pulse rounded-xl bg-[#E8F1E6]" />
+                    <div className="min-w-0 flex-1 pt-1">
+                      <div className="h-3 w-28 animate-pulse rounded bg-[#E8F1E6]" />
+                      <div className="mt-3 h-4 w-3/4 animate-pulse rounded bg-[#E8F1E6]" />
+                      <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#F1F6EF]" />
+                    </div>
+                  </div>
+                  <div className="mt-4 h-3 w-full animate-pulse rounded bg-[#F1F6EF]" />
+                  <div className="mt-2 h-3 w-4/5 animate-pulse rounded bg-[#F1F6EF]" />
+                </article>
+              ))}
+            </div>
+          ) : expertsError ? (
+            <div className="mt-8 rounded-2xl border border-dashed border-[#C8D9C5] bg-[#F8FAF7] px-5 py-12 text-center">
+              <div className="text-lg font-black text-[#174B38]">Unable to load experts</div>
+              <p className="mt-2 text-sm text-[#78867E]">{expertsError}</p>
+              <button suppressHydrationWarning onClick={() => loadExperts(selectedCategorySlug)} className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white">Try again</button>
+            </div>
+          ) : visibleExperts.length > 0 ? (
             <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {visibleExperts.map((expert) => (
-                <Link
-  key={expert.id}
-  href={`/experts/${expert.id}`}
-  className="directory-luxury group block overflow-hidden rounded-2xl bg-white"
->
+                <article key={expert.id} className="directory-luxury group overflow-hidden rounded-2xl bg-white">
                   <div className="flex gap-4 p-5">
-                    <div className="relative shrink-0 rounded-xl p-[2px] bg-gradient-to-br from-[#BDE7A9] via-[#8BD77D] to-[#D5EED0]">
-                      <img src={photo(expert.image, 300)} alt={expert.name} className="h-24 w-24 rounded-[10px] object-cover" loading="lazy" />
-                    </div>
+                    <Link href={`/experts/${expert.slug}`} className="relative shrink-0 rounded-xl p-[2px] bg-gradient-to-br from-[#BDE7A9] via-[#8BD77D] to-[#D5EED0]">
+                      <div className="flex h-24 w-24 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#063B35] to-[#174B38] text-xl font-black text-[#C7E979]">
+                        {expert.initials}
+                      </div>
+                    </Link>
                     <div className="min-w-0 pt-1">
-                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-[#548D4A]">FitnessXpods Network</div>
-                      <h3 className="mt-2 text-base font-black text-[#063B35]">{expert.name}</h3>
+                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-[#548D4A]">
+                        {expert.rank ? `Rank #${expert.rank} · FitnessXpods` : "FitnessXpods Network"}
+                      </div>
+                      <Link href={`/experts/${expert.slug}`}>
+                        <h3 className="mt-2 text-base font-black text-[#063B35] hover:underline">{expert.name}</h3>
+                      </Link>
                       <p className="mt-1 text-xs font-semibold leading-5 text-[#597166]">{expert.role}</p>
-                      <p className="mt-1 text-[10px] text-[#929D95]">{expert.location}</p>
+                      {expert.podcastStatus && (
+                        <p className="mt-1 text-[10px] text-[#929D95]">{expert.podcastStatus}</p>
+                      )}
                     </div>
                   </div>
                   <div className="px-5 pb-5">
-                    <p className="text-xs leading-6 text-[#75837A]">{expert.bio}</p>
+                    {expert.credentials && (
+                      <p className="text-xs leading-6 text-[#75837A]">{expert.credentials}</p>
+                    )}
+                    {expert.books && (
+                      <p className="mt-1.5 text-[11px] leading-5 text-[#597166]">Books: {expert.books}</p>
+                    )}
+                    {expert.socialProof && (
+                      <p className="mt-1 text-[10px] font-medium text-[#72966B]">{expert.socialProof}</p>
+                    )}
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {expert.categories.map((item) => (
                         <span key={item} className="rounded-full border border-[#D5E9D0] bg-gradient-to-r from-[#F0F8EE] to-[#EAF6E7] px-2.5 py-1 text-[9px] font-bold text-[#54834B]">{item}</span>
                       ))}
                     </div>
-                    <div className="mt-4 border-t border-[#E5EFE2] pt-3 text-[10px] font-semibold text-[#72966B]">Demo profile · Details coming soon</div>
+                    {(expert.website || expert.instagram) && (
+                      <div className="mt-4 flex flex-wrap gap-3 border-t border-[#E5EFE2] pt-3 text-[10px] font-semibold text-[#54834B]">
+                        {expert.website && (
+                          <a href={expert.website} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
+                            Website
+                          </a>
+                        )}
+                        {expert.instagram && (
+                          <a href={expert.instagram} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
+                            Instagram
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-               </Link>
+                </article>
               ))}
             </div>
           ) : (
             <div className="mt-8 rounded-2xl border border-dashed border-[#C8D9C5] bg-[#F8FAF7] px-5 py-12 text-center">
-              <div className="text-lg font-black text-[#174B38]">No matching demo profiles</div>
+              <div className="text-lg font-black text-[#174B38]">No matching experts</div>
               <p className="mt-2 text-sm text-[#78867E]">Try a different search or clear your filters.</p>
-              <button onClick={resetFilters} className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white">Clear filters</button>
+              <button suppressHydrationWarning onClick={resetFilters} className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white">Clear filters</button>
             </div>
           )}
 
           {filteredExperts.length > pageSize && (
             <div className="mt-9 flex items-center justify-center gap-4">
-              <button disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">← Previous</button>
+              <button suppressHydrationWarning disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">← Previous</button>
               <span className="text-xs font-bold text-[#718078]">{page} / {totalPages}</span>
-              <button disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">Next →</button>
+              <button suppressHydrationWarning disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-full border border-[#DCE7D9] px-4 py-2.5 text-xs font-bold text-[#174B38] disabled:opacity-30">Next →</button>
             </div>
           )}
-          <p className="mt-5 text-center text-[10px] leading-5 text-[#9AA49C]">These are illustrative demo entries for layout and testing. They are not real or verified professional listings.</p>
         </div>
       </section>
 

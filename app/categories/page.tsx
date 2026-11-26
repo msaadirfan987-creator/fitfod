@@ -1,84 +1,120 @@
-import Link from "next/link";
+"use client";
 
-const categories = [
-{ name: "Weight Loss", subcategories: "Fat loss, metabolic health, obesity" },
-{ name: "Nutrition & Diet", subcategories: "Keto, Mediterranean, vegan, paleo" },
-{ name: "Strength Training", subcategories: "Weightlifting, bodybuilding, powerlifting" },
-{ name: "Cardiovascular Fitness", subcategories: "Heart health, aerobic conditioning" },
-{ name: "Running", subcategories: "Marathons, jogging, trail running" },
-{ name: "Walking & Hiking", subcategories: "Daily walking, trekking, rucking" },
-{ name: "Yoga", subcategories: "Hatha, Vinyasa, restorative yoga" },
-{ name: "Pilates", subcategories: "Mat, reformer, core strengthening" },
-{ name: "Mobility & Flexibility", subcategories: "Stretching, joint mobility" },
-{ name: "Longevity & Healthy Aging", subcategories: "Fitness over 50, 60, and 70" },
-{ name: "Women's Fitness", subcategories: "Pregnancy, postpartum, menopause" },
-{ name: "Men's Fitness", subcategories: "Muscle development, age-related fitness" },
-{ name: "Sports Performance", subcategories: "Athletic training, speed, agility" },
-{ name: "Functional Fitness", subcategories: "Everyday strength, balance" },
-{ name: "HIIT & Conditioning", subcategories: "Interval training, circuit workouts" },
-{ name: "Recovery & Injury Prevention", subcategories: "Rehabilitation, physical therapy" },
-{ name: "Sleep & Recovery", subcategories: "Sleep optimization, rest" },
-{ name: "Mind-Body Wellness", subcategories: "Meditation, stress reduction" },
-{ name: "Outdoor Fitness", subcategories: "Cycling, swimming, adventure" },
-{ name: "Fitness Technology", subcategories: "Wearables, tracking, AI coaching" },
-{ name: "Specialized Fitness", subcategories: "Disability-adapted fitness, chronic conditions" },
-];
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { ApiCategory, getCategories } from "../../lib/api";
 
 export default function CategoriesPage() {
-return (
-<main className="min-h-screen bg-[#F7F8F3]">
-<section className="bg-[#063B35] px-6 py-20 text-center text-white">
-<p className="text-xs font-bold uppercase tracking-[.25em] text-[#E9D994]">
-FitnessXpods Network
-</p>
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-<h1 className="mt-4 text-4xl font-extrabold sm:text-5xl">  
-      Explore Categories  
-    </h1>  
+  const loadCategories = useCallback(async (signal?: AbortSignal) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getCategories(signal);
+      setCategories(data);
+    } catch (err) {
+      if ((err as Error).name === "AbortError") return;
+      setError(
+        err instanceof Error ? err.message : "Failed to load categories"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/75">  
-      Discover fitness, health, and wellness experts across 21 specialized  
-      categories.  
-    </p>  
-  </section>  
+  useEffect(() => {
+    const controller = new AbortController();
+    loadCategories(controller.signal);
+    return () => controller.abort();
+  }, [loadCategories]);
 
-  <section className="mx-auto max-w-7xl px-6 py-16">  
-    <div className="mb-10">  
-      <p className="text-sm font-semibold text-[#9A843A]">  
-        EXPLORE OUR NETWORK  
-      </p>  
-      <h2 className="mt-2 text-3xl font-extrabold text-[#063B35]">  
-        21 Fitness Categories  
-      </h2>  
-    </div>  
+  return (
+    <main className="min-h-screen bg-[#F7F8F3]">
+      <section className="bg-[#063B35] px-6 py-20 text-center text-white">
+        <p className="text-xs font-bold uppercase tracking-[.25em] text-[#E9D994]">
+          FitnessXpods Network
+        </p>
 
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">  
-      {categories.map((category, index) => (  
-        <Link  
-          key={category.name}  
-         href={`/experts?category=${encodeURIComponent(category.name)}`} 
-          className="group rounded-[24px] border border-[#E7EDE3] bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"  
-        >  
-          <p className="text-xs font-bold uppercase tracking-widest text-[#9A843A]">  
-            Category {String(index + 1).padStart(2, "0")}  
-          </p>  
+        <h1 className="mt-4 text-4xl font-extrabold sm:text-5xl">
+          Explore Categories
+        </h1>
 
-          <h3 className="mt-4 text-xl font-extrabold text-[#063B35]">  
-            {category.name}  
-          </h3>  
+        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/75">
+          Discover fitness, health, and wellness experts across{" "}
+          {categories.length || 21} specialized categories.
+        </p>
+      </section>
 
-          <p className="mt-3 text-sm leading-6 text-[#718078]">  
-            {category.subcategories}  
-          </p>  
+      <section className="mx-auto max-w-7xl px-6 py-16">
+        <div className="mb-10">
+          <p className="text-sm font-semibold text-[#9A843A]">
+            EXPLORE OUR NETWORK
+          </p>
+          <h2 className="mt-2 text-3xl font-extrabold text-[#063B35]">
+            {categories.length || 21} Fitness Categories
+          </h2>
+        </div>
 
-          <div className="mt-6 text-sm font-bold text-[#587B35]">  
-            Explore Experts →  
-          </div>  
-        </Link>  
-      ))}  
-    </div>  
-  </section>  
-</main>
+        {loading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-[24px] border border-[#E7EDE3] bg-white p-7 shadow-sm"
+              >
+                <div className="h-3 w-24 animate-pulse rounded bg-[#E8F1E6]" />
+                <div className="mt-4 h-6 w-2/3 animate-pulse rounded bg-[#E8F1E6]" />
+                <div className="mt-3 h-4 w-full animate-pulse rounded bg-[#F1F6EF]" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="rounded-[24px] border border-dashed border-[#C8D9C5] bg-white p-8 text-center">
+            <p className="text-lg font-extrabold text-[#063B35]">
+              Unable to load categories
+            </p>
+            <p className="mt-2 text-sm text-[#718078]">{error}</p>
+            <button
+              suppressHydrationWarning
+              onClick={() => loadCategories()}
+              className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white"
+            >
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((category, index) => (
+              <Link
+                key={category.slug}
+                href={`/experts?category=${encodeURIComponent(category.slug)}`}
+                className="group rounded-[24px] border border-[#E7EDE3] bg-white p-7 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+              >
+                <p className="text-xs font-bold uppercase tracking-widest text-[#9A843A]">
+                  Category {String(index + 1).padStart(2, "0")}
+                </p>
 
-);
+                <h3 className="mt-4 text-xl font-extrabold text-[#063B35]">
+                  {category.name}
+                </h3>
+
+                {category.subcategories && (
+                  <p className="mt-3 text-sm leading-6 text-[#718078]">
+                    {category.subcategories}
+                  </p>
+                )}
+
+                <div className="mt-6 text-sm font-bold text-[#587B35]">
+                  Explore Experts →
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }
