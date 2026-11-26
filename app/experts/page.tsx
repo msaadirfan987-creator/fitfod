@@ -8,6 +8,14 @@ import {
   getCategories,
   getExperts,
 } from "../../lib/api";
+import {
+  ExpertCard,
+  ExpertCardItem,
+  ExpertPhoto,
+  getInitials,
+  normalizeInstagramUrl,
+  normalizeUrl,
+} from "../../components/ExpertCard";
 
 interface CategoryCardItem {
   id: number;
@@ -15,24 +23,6 @@ interface CategoryCardItem {
   slug: string;
   desc: string;
   image: string | null;
-}
-
-interface ExpertCardItem {
-  id: number;
-  slug: string;
-  rank: number | null;
-  name: string;
-  role: string;
-  subCategory: string | null;
-  credentials: string | null;
-  books: string | null;
-  socialProof: string | null;
-  podcastStatus: string | null;
-  categories: string[];
-  initials: string;
-  featured: boolean;
-  website: string | null;
-  instagram: string | null;
 }
 
 const CATEGORY_IMAGE_BY_SLUG: Record<string, string> = {
@@ -58,33 +48,6 @@ const CATEGORY_IMAGE_BY_SLUG: Record<string, string> = {
   "fitness-technology": "photo-1510017803434-a899398421b3",
   "specialized-fitness": "photo-1534438327276-14e5300c3a48",
 };
-
-function getInitials(name: string, rank: number | null): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-  }
-  if (parts.length === 1 && parts[0].length >= 2) {
-    return parts[0].slice(0, 2).toUpperCase();
-  }
-  return rank ? String(rank).padStart(2, "0") : "EX";
-}
-
-function normalizeUrl(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
-
-function normalizeInstagramUrl(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  const handle = trimmed.replace(/^@/, "");
-  return handle ? `https://instagram.com/${handle}` : null;
-}
 
 function mapCategoryFromApi(category: ApiCategory): CategoryCardItem {
   return {
@@ -115,15 +78,12 @@ function mapExpertFromApi(expert: ApiExpert): ExpertCardItem {
     credentials: expert.credentials?.trim() || null,
     books: expert.books?.trim() || null,
     socialProof: expert.social_proof?.trim() || null,
-    podcastStatus:
-      expert.podcast_status && expert.podcast_status.trim() !== "None found"
-        ? expert.podcast_status.trim()
-        : null,
     categories: categoryTags,
     initials: getInitials(expert.name, expert.rank),
     featured: typeof expert.rank === "number" ? expert.rank <= 3 : false,
     website: normalizeUrl(expert.website),
     instagram: normalizeInstagramUrl(expert.instagram),
+    imageUrl: expert.image_url?.trim() || null,
   };
 }
 
@@ -250,7 +210,7 @@ export default function ExpertsPage() {
     });
   }, [experts, search, role]);
 
-  const pageSize = 6;
+  const pageSize = 12;
   const totalPages = Math.max(1, Math.ceil(filteredExperts.length / pageSize));
   const visibleExperts = filteredExperts.slice(
     (page - 1) * pageSize,
@@ -609,13 +569,17 @@ export default function ExpertsPage() {
               featuredExperts.map((expert) => (
                 <article key={expert.id} className="expert-luxury group overflow-hidden rounded-[25px]">
                   <Link href={`/experts/${expert.slug}`} className="block">
-                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-[#174B38] to-[#063B35]">
-                      <div className="flex h-full w-full items-center justify-center">
-                        <span className="text-5xl font-black tracking-tight text-[#C7E979]/85">{expert.initials}</span>
-                      </div>
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#E4ECE2]">
+                      <ExpertPhoto
+                        imageUrl={expert.imageUrl}
+                        name={expert.name}
+                        initials={expert.initials}
+                        className="h-full w-full transition duration-500 group-hover:scale-105"
+                        initialsClassName="text-5xl font-black tracking-tight text-[#174B38]"
+                      />
                       <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-[#063B35]/80 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-md">Featured</div>
                       <div className="absolute right-4 top-4 rounded-full border border-[#E6D18B]/60 bg-[#063B35]/75 px-3 py-1.5 text-[10px] font-bold text-[#E9D994] backdrop-blur-md">
-                        {expert.rank ? `Rank #${expert.rank}` : `Profile ${expert.initials}`}
+                        {expert.rank ? `#${expert.rank}` : `Profile ${expert.initials}`}
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#063B35]/65 to-transparent" />
                       <div className="absolute bottom-4 left-4 text-xs font-semibold text-white">FitnessXpods Network</div>
@@ -628,7 +592,7 @@ export default function ExpertsPage() {
                       <h3 className="mt-2 text-xl font-extrabold text-[#063B35] hover:underline">{expert.name}</h3>
                     </Link>
                     {expert.credentials && (
-                      <p className="mt-3 text-sm leading-6 text-[#718078]">{expert.credentials}</p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#718078]">{expert.credentials}</p>
                     )}
                     {expert.books && (
                       <p className="mt-2 text-xs leading-5 text-[#597166]">Books: {expert.books}</p>
@@ -695,19 +659,16 @@ export default function ExpertsPage() {
           </div>
 
           {expertsLoading ? (
-            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <article key={index} className="directory-luxury overflow-hidden rounded-2xl bg-white p-5">
-                  <div className="flex gap-4">
-                    <div className="h-24 w-24 shrink-0 animate-pulse rounded-xl bg-[#E8F1E6]" />
-                    <div className="min-w-0 flex-1 pt-1">
-                      <div className="h-3 w-28 animate-pulse rounded bg-[#E8F1E6]" />
-                      <div className="mt-3 h-4 w-3/4 animate-pulse rounded bg-[#E8F1E6]" />
-                      <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#F1F6EF]" />
-                    </div>
+            <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <article key={index} className="directory-luxury overflow-hidden rounded-2xl bg-white">
+                  <div className="aspect-[4/5] w-full animate-pulse bg-[#E8F1E6]" />
+                  <div className="p-5">
+                    <div className="h-3 w-24 animate-pulse rounded bg-[#E8F1E6]" />
+                    <div className="mt-2.5 h-4 w-3/4 animate-pulse rounded bg-[#E8F1E6]" />
+                    <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-[#F1F6EF]" />
+                    <div className="mt-3 h-3 w-full animate-pulse rounded bg-[#F1F6EF]" />
                   </div>
-                  <div className="mt-4 h-3 w-full animate-pulse rounded bg-[#F1F6EF]" />
-                  <div className="mt-2 h-3 w-4/5 animate-pulse rounded bg-[#F1F6EF]" />
                 </article>
               ))}
             </div>
@@ -718,59 +679,9 @@ export default function ExpertsPage() {
               <button suppressHydrationWarning onClick={() => loadExperts(selectedCategorySlug)} className="mt-4 rounded-full bg-[#063B35] px-5 py-2.5 text-xs font-bold text-white">Try again</button>
             </div>
           ) : visibleExperts.length > 0 ? (
-            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-7 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {visibleExperts.map((expert) => (
-                <article key={expert.id} className="directory-luxury group overflow-hidden rounded-2xl bg-white">
-                  <div className="flex gap-4 p-5">
-                    <Link href={`/experts/${expert.slug}`} className="relative shrink-0 rounded-xl p-[2px] bg-gradient-to-br from-[#BDE7A9] via-[#8BD77D] to-[#D5EED0]">
-                      <div className="flex h-24 w-24 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#063B35] to-[#174B38] text-xl font-black text-[#C7E979]">
-                        {expert.initials}
-                      </div>
-                    </Link>
-                    <div className="min-w-0 pt-1">
-                      <div className="text-[9px] font-extrabold uppercase tracking-widest text-[#548D4A]">
-                        {expert.rank ? `Rank #${expert.rank} · FitnessXpods` : "FitnessXpods Network"}
-                      </div>
-                      <Link href={`/experts/${expert.slug}`}>
-                        <h3 className="mt-2 text-base font-black text-[#063B35] hover:underline">{expert.name}</h3>
-                      </Link>
-                      <p className="mt-1 text-xs font-semibold leading-5 text-[#597166]">{expert.role}</p>
-                      {expert.podcastStatus && (
-                        <p className="mt-1 text-[10px] text-[#929D95]">{expert.podcastStatus}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="px-5 pb-5">
-                    {expert.credentials && (
-                      <p className="text-xs leading-6 text-[#75837A]">{expert.credentials}</p>
-                    )}
-                    {expert.books && (
-                      <p className="mt-1.5 text-[11px] leading-5 text-[#597166]">Books: {expert.books}</p>
-                    )}
-                    {expert.socialProof && (
-                      <p className="mt-1 text-[10px] font-medium text-[#72966B]">{expert.socialProof}</p>
-                    )}
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {expert.categories.map((item) => (
-                        <span key={item} className="rounded-full border border-[#D5E9D0] bg-gradient-to-r from-[#F0F8EE] to-[#EAF6E7] px-2.5 py-1 text-[9px] font-bold text-[#54834B]">{item}</span>
-                      ))}
-                    </div>
-                    {(expert.website || expert.instagram) && (
-                      <div className="mt-4 flex flex-wrap gap-3 border-t border-[#E5EFE2] pt-3 text-[10px] font-semibold text-[#54834B]">
-                        {expert.website && (
-                          <a href={expert.website} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
-                            Website
-                          </a>
-                        )}
-                        {expert.instagram && (
-                          <a href={expert.instagram} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#063B35]">
-                            Instagram
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </article>
+                <ExpertCard key={expert.id} expert={expert} />
               ))}
             </div>
           ) : (

@@ -1,7 +1,7 @@
 import { supabase } from '../config/supabase.js';
 
 const EXPERT_COLUMNS =
-  'id, category_id, rank, name, slug, sub_category, books, credentials, social_proof, podcast_status, website, instagram, source';
+  'id, category_id, rank, name, slug, sub_category, books, credentials, social_proof, website, instagram, image_url';
 
 /**
  * Fetch experts optionally filtered by category slug, ordered by rank ascending.

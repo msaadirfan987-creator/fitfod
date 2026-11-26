@@ -16,10 +16,9 @@ export interface ApiExpert {
   books: string | null;
   credentials: string | null;
   social_proof: string | null;
-  podcast_status: string | null;
   website: string | null;
   instagram: string | null;
-  source: string | null;
+  image_url: string | null;
   categories?: {
     id: number;
     name: string;

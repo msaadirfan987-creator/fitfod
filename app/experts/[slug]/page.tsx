@@ -4,30 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ApiExpert, getExpertBySlug } from "../../../lib/api";
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-  }
-  return parts[0] ? parts[0].slice(0, 2).toUpperCase() : "EX";
-}
-
-function normalizeUrl(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-}
-
-function normalizeInstagramUrl(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  const handle = trimmed.replace(/^@/, "");
-  return handle ? `https://instagram.com/${handle}` : null;
-}
+import {
+  ExpertPhoto,
+  getInitials,
+  normalizeInstagramUrl,
+  normalizeUrl,
+} from "../../../components/ExpertCard";
 
 function EmptyState({ message }: { message: string }) {
   return (
@@ -102,10 +84,6 @@ export default function ExpertProfilePage() {
     expert.sub_category || expert.categories?.name || "Fitness Specialist";
   const websiteUrl = normalizeUrl(expert.website);
   const instagramUrl = normalizeInstagramUrl(expert.instagram);
-  const podcastStatus =
-    expert.podcast_status && expert.podcast_status.trim() !== "None found"
-      ? expert.podcast_status.trim()
-      : null;
   const expertiseTags = Array.from(
     new Set(
       [expert.categories?.name, expert.sub_category].filter(
@@ -177,10 +155,14 @@ export default function ExpertProfilePage() {
 
           <div className="relative mx-auto w-full max-w-md">
             <div className="absolute -inset-4 rounded-[2rem] border border-white/20" />
-            <div className="relative flex h-[420px] w-full items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-[#235447] to-[#112c25] shadow-2xl">
-              <span className="text-7xl font-black tracking-tight text-[#C7E979]/85">
-                {getInitials(expert.name)}
-              </span>
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.5rem] bg-[#E4ECE2] shadow-2xl">
+              <ExpertPhoto
+                imageUrl={expert.image_url?.trim() || null}
+                name={expert.name}
+                initials={getInitials(expert.name, expert.rank)}
+                className="h-full w-full"
+                initialsClassName="text-7xl font-black tracking-tight text-[#174B38]"
+              />
             </div>
             <div className="absolute -bottom-5 left-5 right-5 rounded-2xl bg-white p-5 shadow-xl">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">
@@ -340,29 +322,6 @@ export default function ExpertProfilePage() {
               </div>
             ) : (
               <EmptyState message="Official website and social media links will be added when available." />
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* PODCAST EPISODES */}
-      <section className="bg-[#eaf1e7] px-6 py-16">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#619b55]">
-            FitPod Episodes
-          </p>
-          <h2 className="mt-3 text-3xl font-bold">
-            Podcast & Media Status
-          </h2>
-          <div className="mt-8">
-            {podcastStatus ? (
-              <div className="rounded-2xl border border-[#d5dfd4] bg-white p-8">
-                <p className="text-base leading-7 text-[#183b32]">
-                  {podcastStatus}
-                </p>
-              </div>
-            ) : (
-              <EmptyState message="Podcast appearances will be displayed here when available." />
             )}
           </div>
         </div>
