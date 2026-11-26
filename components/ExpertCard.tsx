@@ -86,7 +86,7 @@ export function ExpertPhoto({
       alt={name}
       loading="lazy"
       onError={() => setHasError(true)}
-      className={`object-contain object-center ${className}`}
+      className={`object-cover object-top ${className}`}
     />
   );
 }
@@ -138,13 +138,13 @@ export function ExpertCard({ expert }: { expert: ExpertCardItem }) {
     <article className="directory-luxury group flex flex-col overflow-hidden rounded-2xl bg-white">
       <Link
         href={`/experts/${expert.slug}`}
-        className="relative block h-52 w-full overflow-hidden rounded-t-2xl bg-[#F1F6EF] p-2"
+        className="relative block aspect-[4/5] w-full overflow-hidden rounded-t-2xl bg-[#E4ECE2]"
       >
         <ExpertPhoto
           imageUrl={expert.imageUrl}
           name={expert.name}
           initials={expert.initials}
-          className="h-full w-full rounded-xl transition duration-500 group-hover:scale-105"
+          className="h-full w-full transition duration-500 group-hover:scale-105"
         />
         {expert.rank !== null && (
           <div className="absolute right-3 top-3 rounded-full border border-[#E6D18B]/60 bg-[#063B35]/80 px-2.5 py-1 text-[10px] font-bold text-[#E9D994] backdrop-blur-md">
